@@ -20,7 +20,7 @@ public class StateManager {
         currentState.update();
     }
 
-    public void render(Canvas canvas, long deltaTime) {
+    public void render(Canvas canvas, float deltaTime) {
         currentState.render(canvas, deltaTime);
     }
 

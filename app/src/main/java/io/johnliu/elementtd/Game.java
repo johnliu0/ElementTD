@@ -1,6 +1,7 @@
 package io.johnliu.elementtd;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
@@ -12,7 +13,15 @@ import io.johnliu.elementtd.gamestate.StateManager;
 
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
-    public static final int UPDATE_FPS = 5;
+    public static AssetManager ASSETS;
+    // ticks/updates per second
+    public static final int UPDATE_FPS = 15     ;
+    // how long a tick lasts for in seconds
+    // used for kinematics calculations
+    public static final float TICK_TIME = 1.0f / UPDATE_FPS;
+    // how long a tick lasts for in nanoseconds
+    // used for timers
+    public static final long TICK_TIME_NS = (long) (TICK_TIME * 1000000000l);
     public static int RENDER_FPS_MAX = 60;
 
     public static float DISPLAY_DENSITY;
@@ -22,30 +31,27 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     private GameThread thread;
     private StateManager stateManager;
 
-    private Bitmap bitmap;
-
     public Game(Context context, float displayDensity, float displayWidth, float displayHeight) {
         super(context);
         this.DISPLAY_DENSITY = displayDensity;
         this.DISPLAY_WIDTH = displayWidth;
         this.DISPLAY_HEIGHT = displayHeight;
 
+        ASSETS = context.getAssets();
+
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
 
         stateManager = new StateManager(this);
-
         ResourceLoader.getInstance().setResources(getResources());
-        bitmap = ResourceLoader.getInstance().decodeResource(R.drawable.firerock1);
     }
 
     public void update() {
         stateManager.update();
     }
 
-    public void render(Canvas canvas, long deltaTime) {
-        //canvas.drawBitmap(bitmap, null, new Rect(0, 0, 256, 256), null);
+    public void render(Canvas canvas, float deltaTime) {
         stateManager.render(canvas, deltaTime);
     }
 
@@ -113,6 +119,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             long deltaTime = 0;
             long elapsedUpdateTime = 0;
             long elapsedRenderTime = 0;
+            long timeSinceLastUpdate = 0;
 
             final long updateTime = 1000000000 / Game.UPDATE_FPS;
             final long maxRenderTime = 1000000000 / Game.RENDER_FPS_MAX;
@@ -128,6 +135,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 deltaTime = currentTime - beforeTime;
                 elapsedRenderTime += deltaTime;
                 elapsedUpdateTime += deltaTime;
+                timeSinceLastUpdate += deltaTime;
                 beforeTime = currentTime;
 
                 try {
@@ -137,15 +145,15 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                         while (elapsedUpdateTime >= updateTime) {
                             game.update();
                             elapsedUpdateTime -= updateTime;
+                            timeSinceLastUpdate = 0;
                             updateFps++;
                         }
 
                         game.draw(canvas);
                         if (canvas != null) {
-                            game.render(canvas, deltaTime);
+                            game.render(canvas, ((float) timeSinceLastUpdate) / 1000000000.0f);
                         }
                         renderFps++;
-
 
                     }
                 } catch (Exception e) {} finally {
@@ -159,9 +167,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 }
 
                 elapsedTime += deltaTime;
-                if (elapsedTime >= 3000000000L) {
-                    elapsedTime -= 3000000000L;
-                    System.out.println("ups: " + (updateFps / 3) + " | fps: " + (renderFps / 3));
+                if (elapsedTime >= 5000000000L) {
+                    elapsedTime -= 5000000000L;
+                    System.out.println("ups: " + (updateFps / 5) + " | fps: " + (renderFps / 5));
                     updateFps = 0;
                     renderFps = 0;
                 }

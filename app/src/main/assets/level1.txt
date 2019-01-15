@@ -1,0 +1,15 @@
+GRID_WIDTH:10
+GRID_HEIGHT:9
+START_LEVEL_GRID
+...#......
+S###.####E
+...#.#....
+..##.###..
+..#....#..
+###....###
+#........#
+##########
+....#.....
+END_LEVEL_GRID
+START_LIVES:30
+START_MANA:100

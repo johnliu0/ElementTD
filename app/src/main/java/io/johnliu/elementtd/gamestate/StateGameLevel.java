@@ -5,13 +5,19 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import io.johnliu.elementtd.level.Level;
+import io.johnliu.elementtd.level.LevelLoader;
 
 public class StateGameLevel extends State {
 
     private Level level;
 
     public StateGameLevel() {
-        this.level = new Level(8, 8);
+        try {
+            this.level = LevelLoader.loadLevel("level1.txt");
+        } catch (Exception e) {
+            System.out.println("Failed to load level1.txt");
+            e.printStackTrace(System.out);
+        }
     }
 
     @Override
@@ -20,7 +26,7 @@ public class StateGameLevel extends State {
     }
 
     @Override
-    public void render(Canvas canvas, long deltaTime) {
+    public void render(Canvas canvas, float deltaTime) {
         level.render(canvas, deltaTime);
     }
 

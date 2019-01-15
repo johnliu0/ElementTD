@@ -1,61 +1,33 @@
 package io.johnliu.elementtd.level.tile;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-
-import java.util.Random;
-
-import io.johnliu.elementtd.level.Level;
 
 public class Tile {
 
-    private int x;
-    private int y;
+    protected int x;
+    protected int y;
+    protected boolean mobPassable;
 
-    private int r;
-    private int g;
-    private int b;
-
-
-    public Tile(int x, int y) {
+    public Tile(int x, int y, boolean mobPassable) {
         this.x = x;
         this.y = y;
-
-        Random rand = new Random();
-        this.r = rand.nextInt(50);
-        this.g = rand.nextInt(50);
-        this.b = rand.nextInt(50);
+        this.mobPassable = mobPassable;
     }
 
-    public void update() {
+    public void update() {}
 
+    public void render(Canvas canvas, float deltaTime) {}
+
+    public int getX() {
+        return x;
     }
 
-    public void render(Canvas canvas, long deltaTime) {
-        Paint paint = new Paint();
-        paint.setColor(Color.argb(128, r, g, b));
-        canvas.drawRect(
-                x * Level.tileWidth,
-                y * Level.tileWidth,
-                (x + 1) * Level.tileWidth,
-                (y + 1) * Level.tileWidth,
-                paint);
+    public int getY() {
+        return y;
     }
 
-    public void whiten() {
-        r += 20;
-        g += 20;
-        b += 20;
-        if (r > 255) {
-            r = 255;
-        }
-        if (g > 255) {
-            g = 255;
-        }
-        if (b > 255) {
-            b = 255;
-        }
+    public boolean isMobPassable() {
+        return mobPassable;
     }
 
 }
