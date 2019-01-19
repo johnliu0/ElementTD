@@ -33,7 +33,7 @@ public abstract class Mob {
         this.armor = armor;
         this.radius = radius;
 
-        updatePath();
+        mobPath = new MobPath(x, y);
 
         this.projEffects = new ArrayList<ProjectileEffect>();
     }
@@ -95,10 +95,6 @@ public abstract class Mob {
 
     public float getDistanceLeft() {
         return mobPath.getDistanceLeft();
-    }
-
-    public void updatePath() {
-        mobPath = MobPathFinder.getInstance().findPath((int) x, (int) y);
     }
 
     // updates the mob's position

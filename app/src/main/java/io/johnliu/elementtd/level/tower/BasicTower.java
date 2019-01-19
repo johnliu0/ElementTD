@@ -7,7 +7,15 @@ import io.johnliu.elementtd.level.projectile.Projectile;
 public class BasicTower extends Tower {
 
     public BasicTower(int x, int y) {
-        super(x, y, 3, 6, 1.5f, 2.0f);
+        super(
+                x,
+                y,
+                3,
+                6,
+                1.5f,
+                2.0f,
+                0.0f,
+                "Fire Tower");
     }
 
     @Override

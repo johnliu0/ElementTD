@@ -11,137 +11,81 @@ public class MobPathFinder {
 
     private int gridWidth;
     private int gridHeight;
-    boolean[][] passable;
-    private ArrayList<Point2di> startPoints;
     private Point2di endPoint;
+    private PathNode[][] nodes;
 
     public MobPathFinder() {
         gridWidth = 0;
         gridHeight = 0;
-        passable = null;
         endPoint = null;
-        startPoints = new ArrayList<Point2di>();
+        nodes = new PathNode[5][5];
     }
 
-    // finds the optimal pathing to the end given a start position
-    public MobPath findPath(int startX, int startY) {
-        // check if setLevel has been set before
-        if (passable == null) {
-            System.out.println("ERROR: MobPathFinder.setLevel was never called");
-            return null;
-        }
-        // check if this position is out of bounds
-        if (startX < 0 || startY < 0 || startX >= gridWidth || startY >= gridWidth) {
-            System.out.println("ERROR: mob out of bounds at " + startX + ", " + startY);
-            return null;
-        }
+    // calculates a minimum spanning tree
+    // that describes the fastest path from
+    // every passable point to the end point
+    public void calcMobPathTree(Level level) {
+        gridWidth = level.getGridWidth();
+        gridHeight = level.getGridHeight();
+        nodes = new PathNode[gridWidth][gridHeight];
 
-        if (!passable[startX][startY]) {
-            System.out.println("ERROR: mob on a non-passable block at " + startX + ", " + startY);
-            return null;
+        for (int x = 0; x < gridWidth; x++) {
+            for (int y = 0;  y < gridHeight; y++) {
+                nodes[x][y] = new PathNode(x, y, level.isMobPassable(x, y));
+            }
         }
 
-        ArrayList<Node> openList = new ArrayList<Node>();
-        ArrayList<Node> closedList = new ArrayList<Node>();
-        openList.add(new Node(startX, startY, 0, 0, null));
 
-        while (openList.size() > 0) {
-            // find node with lowest f value
-            int idx = 0;
-            for (int i = 1; i < openList.size(); i++) {
-                if (openList.get(i).f < openList.get(idx).f) {
-                    idx = i;
-                }
-            }
+        // Dijkstra's algorithm
+        endPoint = level.getEndPoint();
+        nodes[endPoint.x][endPoint.y].dist = 0;
+        ArrayList<PathNode> open = new ArrayList<PathNode>();
 
-            Node node = openList.get(idx);
-            openList.remove(idx);
-            closedList.add(node);
+        // current node
+        PathNode node = nodes[endPoint.x][endPoint.y];
+        open.add(node);
 
-            // end found
-            if (node.x == endPoint.x && node.y == endPoint.y) {
-                break;
-            }
+        while(open.size() > 0) {
+            // directly adjacent blocks are treated as 1 unit
+            int newDist = node.dist + 1;
 
-            // check the four directly adjacent nodes
-            ArrayList<Node> children = new ArrayList<Node>();
-            // left
-            if (node.x - 1 >= 0 && passable[node.x - 1][node.y])   {
-                children.add(new Node(
-                        node.x - 1,
-                        node.y,
-                        1,
-                        getHeuristic(node.x - 1, node.y, endPoint.x, endPoint.y),
-                        node));
-            }
-            // right
-            if (node.x + 1 < gridWidth && passable[node.x + 1][node.y]) {
-                children.add(new Node(
-                        node.x + 1,
-                        node.y,
-                        1,
-                        getHeuristic(node.x + 1, node.y, endPoint.x, endPoint.y),
-                        node));
-            }
-            // up
-            if (node.y - 1 >= 0 && passable[node.x][node.y - 1]) {
-                children.add(new Node(
-                        node.x,
-                        node.y - 1,
-                        1,
-                        getHeuristic(node.x, node.y - 1, endPoint.x, endPoint.y),
-                        node));
-            }
-            // down
-            if (node.y + 1 < gridHeight && passable[node.x][node.y + 1]) {
-                children.add(new Node(
-                        node.x,
-                        node.y + 1,
-                        1,
-                        getHeuristic(node.x, node.y + 1, endPoint.x, endPoint.y),
-                        node));
-            }
-
-            outer:
-            for (Node child : children) {
-                for (Node n : closedList) {
-                    if (child.x == n.x && child.y == n.y) {
-                        continue outer;
-                    }
-                }
-
-                Node open = null;
-                for (Node n : openList) {
-                    if (child.x == n.x && child.y == n.y) {
-                        if (child.g >= n.g) {
-                            continue outer;
-                        } else {
-                            open = n;
-                            break;
+            for (int x = node.x - 1; x <= node.x + 1; x++) {
+                for (int y = node.y - 1; y <= node.y + 1; y++) {
+                    if (!(x != node.x && y != node.y) && !(x == node.x && y == node.y)) {
+                        if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
+                            if (nodes[x][y].passable && !nodes[x][y].visited) {
+                                open.add(nodes[x][y]);
+                                if (nodes[x][y].dist > newDist) {
+                                    nodes[x][y].parent = node;
+                                    nodes[x][y].dist = newDist;
+                                }
+                            }
                         }
                     }
                 }
+            }
 
-                if (open == null) {
-                    openList.add(child);
-                } else {
-                    open.parent = child;
-                    open.g = child.g;
-                    open.f = child.g + getHeuristic(child.x, child.y, endPoint.y, endPoint.y);
+            node.visited = true;
+            open.remove(node);
+
+            if (open.size() > 0) {
+                PathNode next = open.get(0);
+                for (PathNode low : open) {
+                    if (low.dist < next.dist) {
+                        next = low;
+                    }
                 }
+                node = next;
             }
         }
+    }
 
-        ArrayList<Point2di> path = new ArrayList<Point2di>();
-        Node finalNode = closedList.get(closedList.size() - 1);
-        path.add(new Point2di(finalNode.x, finalNode.y));
-        Node traverse = finalNode.parent;
-        while (traverse != null) {
-            path.add(0, new Point2di(traverse.x, traverse.y));
-            traverse = traverse.parent;
+    public PathNode getClosestNode(float x, float y) {
+        if (x < 0.0f || y < 0.0f || x >= gridWidth || y >= gridHeight) {
+            return null;
+        } else {
+            return nodes[(int) x][(int) y];
         }
-
-        return new MobPath(simplifyPath(path));
     }
 
     public static MobPathFinder getInstance() {
@@ -201,39 +145,4 @@ public class MobPathFinder {
         return finalPath;
     }
 
-    // updates the path finding
-    // should be called once when the level loads
-    // and any time the path changes
-    public void updatePath(Level level) {
-        gridWidth = level.getGridWidth();
-        gridHeight = level.getGridHeight();
-        passable = new boolean[gridWidth][level.getGridHeight()];
-        for (int x = 0; x < gridWidth; x++) {
-            for (int y = 0;  y < gridHeight; y++) {
-                passable[x][y] = level.isMobPassable(x, y);
-            }
-        }
-
-        endPoint = level.getEndPoint();
-        startPoints = level.getStartPoints();
-    }
-
-    private int getHeuristic(int startX, int startY, int endX, int endY) {
-        // Pythagorean theorem
-        return (endX - startX) * (endX - startX) + (endY - startY) * (endY - startY);
-    }
-
-    class Node {
-        Node parent;
-        int x, y;
-        int f, g, h;
-        Node(int x, int y, int g, int h, Node parent) {
-            this.x = x;
-            this.y = y;
-            this.g = g;
-            this.h = h;
-            this.parent = parent;
-            f = g + h;
-        }
-    }
 }

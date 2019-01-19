@@ -9,12 +9,12 @@ public class ResourceLoader {
     private static ResourceLoader singleton = null;
     private Resources resources = null;
 
-    public Bitmap decodeResource(int resource) {
-        return BitmapFactory.decodeResource(resources, resource);
+    public static void setResources(Resources resources) {
+        getInstance().resources = resources;
     }
 
-    public void setResources(Resources resources) {
-        this.resources = resources;
+    public static Bitmap decodeResource(int resource) {
+        return BitmapFactory.decodeResource(getInstance().resources, resource);
     }
 
     public static ResourceLoader getInstance() {

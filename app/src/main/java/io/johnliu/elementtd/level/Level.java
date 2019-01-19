@@ -7,6 +7,7 @@ import android.view.ScaleGestureDetector;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.level.gui.LevelGui;
 import io.johnliu.elementtd.level.mob.BasicMob;
 import io.johnliu.elementtd.level.mob.Mob;
 import io.johnliu.elementtd.level.mob.MobPathFinder;
@@ -54,6 +55,8 @@ public class Level {
     private ArrayList<Projectile> projectiles;
     // list of all towers
     private ArrayList<Tower> towers;
+    // currently selected tile
+    //  private Point2di
 
     /**
      * The level object used to represent one distinct level.
@@ -86,7 +89,7 @@ public class Level {
         this.mana = startMana;
         mobs = new ArrayList<Mob>();
         // calculate optimal paths for mobs
-        MobPathFinder.getInstance().updatePath(this);
+        MobPathFinder.getInstance().calcMobPathTree(this);
         projectiles = new ArrayList<Projectile>();
 
         float startX = startPoints.get(0).x + 0.5f;
@@ -135,8 +138,6 @@ public class Level {
     }
 
     public void render(Canvas canvas, float deltaTime) {
-        //gui.render(canvas, deltaTime);
-
         canvas.translate(offsetX * zoomScale, offsetY * zoomScale);
         canvas.scale(zoomScale, zoomScale, Game.DISPLAY_WIDTH / 2.0f + offsetX, Game.DISPLAY_HEIGHT / 2.0f + offsetY);
         canvas.scale(tileWidth, tileWidth, 0.0f, 0.0f);
@@ -150,6 +151,10 @@ public class Level {
         for (Mob mob : mobs) {
             mob.render(canvas, deltaTime);
         }
+
+        // clears transformations
+        canvas.setMatrix(null);
+        gui.render(canvas, deltaTime);
     }
 
     public void addProjectile(Projectile projectile) {
@@ -163,8 +168,9 @@ public class Level {
         // find corresponding tile
         int tileX = (int) (x / tileWidth);
         int tileY = (int) (y / tileWidth);
-
         // open up build interface for tile
+        //toggleBuildInterface(tileX, tileY);
+
     }
 
     // pan level around
@@ -206,6 +212,10 @@ public class Level {
         }
     }
 
+    private void toggleMenuInterface(int x, int y) {
+
+    }
+
     public int getGridWidth() {
         return gridWidth;
     }
@@ -236,4 +246,5 @@ public class Level {
     public Point2di getEndPoint() {
         return endPoint;
     }
+
 }

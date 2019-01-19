@@ -17,7 +17,8 @@ public abstract class Tower {
     protected float maxDamage;
     protected float attackRate;
     protected float range;
-
+    protected float armorPen;
+    protected String name;
 
     private long attackTimer;
     private long attackRateNs;
@@ -34,7 +35,9 @@ public abstract class Tower {
             float minDamage,
             float maxDamage,
             float attackRate,
-            float range
+            float range,
+            float armorPen,
+            String name
     ) {
         this.x = x;
         this.y = y;
@@ -42,6 +45,8 @@ public abstract class Tower {
         this.maxDamage = maxDamage;
         this.attackRate = attackRate;
         this.range = range;
+        this.armorPen = armorPen;
+        this.name = name;
         attackTarget = AttackTarget.FIRST;
         attackTimer = 0;
         attackRateNs = (long) (1.0f / attackRate) * 1000000000l;
@@ -99,6 +104,30 @@ public abstract class Tower {
     // returns a random value between the min and max damage
     protected float getDamage() {
         return new Random().nextFloat() * (minDamage - maxDamage) + minDamage;
+    }
+
+    public float getMinDamage() {
+        return minDamage;
+    }
+
+    public float getMaxDamage() {
+        return maxDamage;
+    }
+
+    public float getRange() {
+        return range;
+    }
+
+    public float getAttackRate() {
+        return attackRate;
+    }
+
+    public float getArmorPen() {
+        return armorPen;
+    }
+
+    public String getName() {
+        return name;
     }
 
 }

@@ -60,7 +60,12 @@ public class MainActivity extends Activity implements GestureDetector.OnGestureL
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
-        game = new Game(this, metrics.density, (float) metrics.widthPixels, (float) metrics.heightPixels);
+        game = new Game(
+                this,
+                metrics.density,
+                (float) metrics.widthPixels,
+                (float) metrics.heightPixels,
+                (metrics.widthPixels / metrics.xdpi) / (metrics.heightPixels / metrics.ydpi));
         setContentView(game);
     }
 

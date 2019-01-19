@@ -27,15 +27,30 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public static float DISPLAY_DENSITY;
     public static float DISPLAY_WIDTH;
     public static float DISPLAY_HEIGHT;
+    public static float DISPLAY_ASPECT_RATIO;
+    public static float FONT_SIZE_SM;
+    public static float FONT_SIZE_MD;
+    public static float FONT_SIZE_LG;
 
     private GameThread thread;
     private StateManager stateManager;
 
-    public Game(Context context, float displayDensity, float displayWidth, float displayHeight) {
+    public Game(Context context, float displayDensity, float displayWidth, float displayHeight, float aspectRatio) {
         super(context);
         this.DISPLAY_DENSITY = displayDensity;
         this.DISPLAY_WIDTH = displayWidth;
         this.DISPLAY_HEIGHT = displayHeight;
+        this.DISPLAY_ASPECT_RATIO = aspectRatio;
+        this.FONT_SIZE_SM = displayDensity * 12;
+        this.FONT_SIZE_MD = displayDensity * 18;
+        this.FONT_SIZE_LG = displayDensity * 24;
+
+
+
+
+
+
+        ResourceLoader.getInstance().setResources(getResources());
 
         ASSETS = context.getAssets();
 
@@ -44,7 +59,6 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
 
         stateManager = new StateManager(this);
-        ResourceLoader.getInstance().setResources(getResources());
     }
 
     public void update() {

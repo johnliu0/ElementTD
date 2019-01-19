@@ -31,7 +31,7 @@ public class PathTile extends Tile {
 
     private Bitmap getBitmap() {
         if (bitmap == null) {
-            bitmap = ResourceLoader.getInstance().decodeResource(R.drawable.rock1);
+            bitmap = ResourceLoader.decodeResource(R.drawable.rock1);
         }
         return bitmap;
     }
