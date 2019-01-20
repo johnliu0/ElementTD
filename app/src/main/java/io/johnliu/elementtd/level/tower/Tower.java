@@ -1,5 +1,7 @@
 package io.johnliu.elementtd.level.tower;
 
+import android.graphics.Canvas;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -18,6 +20,8 @@ public abstract class Tower {
     protected float attackRate;
     protected float range;
     protected float armorPen;
+    protected float manaCost;
+    protected float sellPrice;
     protected String name;
 
     private long attackTimer;
@@ -37,6 +41,8 @@ public abstract class Tower {
             float attackRate,
             float range,
             float armorPen,
+            float manaCost,
+            float sellPrice,
             String name
     ) {
         this.x = x;
@@ -46,6 +52,8 @@ public abstract class Tower {
         this.attackRate = attackRate;
         this.range = range;
         this.armorPen = armorPen;
+        this.manaCost = manaCost;
+        this.sellPrice = sellPrice;
         this.name = name;
         attackTarget = AttackTarget.FIRST;
         attackTimer = 0;
@@ -99,6 +107,8 @@ public abstract class Tower {
         }
     }
 
+    public abstract void render(Canvas canvas, float deltaTime);
+
     protected abstract Projectile createProjectile(Mob target);
 
     // returns a random value between the min and max damage
@@ -122,8 +132,16 @@ public abstract class Tower {
         return attackRate;
     }
 
+    public float getManaCost() {
+        return manaCost;
+    }
+
     public float getArmorPen() {
         return armorPen;
+    }
+
+    public float getSellPrice() {
+        return sellPrice;
     }
 
     public String getName() {

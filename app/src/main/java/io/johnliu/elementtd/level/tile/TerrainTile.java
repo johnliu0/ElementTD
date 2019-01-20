@@ -27,6 +27,9 @@ public class TerrainTile extends Tile {
     @Override
     public void render(Canvas canvas, float deltaTime) {
         canvas.drawBitmap(getBitmap(), null, new Rect(x, y, x + 1, y + 1), null);
+        if (tower != null) {
+            tower.render(canvas, deltaTime);
+        }
     }
 
     private Bitmap getBitmap() {

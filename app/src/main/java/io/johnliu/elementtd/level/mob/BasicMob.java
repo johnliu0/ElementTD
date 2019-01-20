@@ -9,7 +9,7 @@ import io.johnliu.elementtd.level.Point2d;
 public class BasicMob extends Mob {
 
     public BasicMob(float x, float y) {
-        super(x, y, 1.0f, 20.0f, 0.0f, 0.2f);
+        super(x, y, 0.25f, 20.0f, 0.0f, 0.2f);
     }
 
     @Override

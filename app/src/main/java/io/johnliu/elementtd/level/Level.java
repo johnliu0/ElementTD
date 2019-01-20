@@ -7,12 +7,15 @@ import android.view.ScaleGestureDetector;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.level.gui.tileinterface.TileInterface;
 import io.johnliu.elementtd.level.gui.LevelGui;
+import io.johnliu.elementtd.level.gui.tileinterface.TileInterface;
 import io.johnliu.elementtd.level.mob.BasicMob;
 import io.johnliu.elementtd.level.mob.Mob;
 import io.johnliu.elementtd.level.mob.MobPathFinder;
 import io.johnliu.elementtd.level.projectile.Projectile;
 import io.johnliu.elementtd.level.tile.Tile;
+import io.johnliu.elementtd.level.tower.BasicTower;
 import io.johnliu.elementtd.level.tower.Tower;
 
 public class Level {
@@ -35,6 +38,7 @@ public class Level {
      * Rendering
      */
     private LevelGui gui;
+    private TileInterface tileInterface;
     // zoom
     private float zoomScale = 1.0f;
     private float zoomScaleMin = 0.5f;
@@ -79,6 +83,7 @@ public class Level {
         this.endPoint = endPoint;
 
         gui = new LevelGui(this);
+        tileInterface = new TileInterface(this);
         zoomScale = 1.0f;
         zoomScaleMin = 0.5f;
         zoomScaleMax = 2.0f;
@@ -150,8 +155,10 @@ public class Level {
 
         for (Mob mob : mobs) {
             mob.render(canvas, deltaTime);
+
         }
 
+        tileInterface.render(canvas, deltaTime);
         // clears transformations
         canvas.setMatrix(null);
         gui.render(canvas, deltaTime);
@@ -162,16 +169,32 @@ public class Level {
     }
 
     public void onTap(MotionEvent e) {
-        // screen coordinates must be transformed into level coordinates
-        float x = e.getX() - offsetX;
-        float y = e.getY() - offsetY;
-        // find corresponding tile
-        int tileX = (int) (x / tileWidth);
-        int tileY = (int) (y / tileWidth);
-        // open up build interface for tile
-        //toggleBuildInterface(tileX, tileY);
+        // first check for gui interaction
+        if (gui.onPress(e.getX(), e.getY())) {
+            return;
+        }
 
+        // otherwise check for game interaction
+        // find location on level pressed relative to level coordinates
+        float tileX = (-offsetX + e.getX()) / tileWidth;
+        float tileY = (-offsetY + e.getY()) / tileWidth;
+
+        // defocus the tile if the user presses
+        // anywhere outside of the tile interface buttons
+        if (tileInterface.isTileSelected()) {
+            if (!tileInterface.onPress(tileX, tileY)) {
+                tileInterface.clearSelection();
+                return;
+            }
+        } else {
+            // otherwise focus on the selected tile
+            tileInterface.setTile(tiles[(int) tileX][(int) tileY]);
+            return;
+        }
+
+        // check for mob interaction
     }
+
 
     // pan level around
     public void onScroll(float x, float y) {
@@ -212,8 +235,39 @@ public class Level {
         }
     }
 
-    private void toggleMenuInterface(int x, int y) {
+    public boolean buildTower(int x, int y, int towerType) {
+        if (!isValidPoint(x, y)) {
+            return false;
+        }
 
+        Tower tower = null;
+        switch(towerType) {
+            case BasicTower.TOWER_ID:
+                tower = new BasicTower(x, y);
+                break;
+        }
+
+        if (tower != null) {
+            if (mana >= tower.getManaCost()) {
+                mana -= tower.getManaCost();
+                tiles[x][y].setTower(tower);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void sellTower(int x, int y) {
+        if (!isValidPoint(x, y)) {
+            return;
+        }
+
+        Tile tile = getTile(x, y);
+        if (tile.getTower() != null) {
+            mana += tile.getTower().getSellPrice();
+            tile.removeTower();
+        }
     }
 
     public int getGridWidth() {
@@ -245,6 +299,27 @@ public class Level {
 
     public Point2di getEndPoint() {
         return endPoint;
+    }
+
+    public float getOffsetX() {
+        return offsetX;
+    }
+
+    public float getOffsetY() {
+        return offsetY;
+    }
+
+    public Tile getTile(int x, int y) {
+        if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) {
+            return tiles[x][y];
+        }
+        return null;
+    }
+
+    // returns whether or not the given coordinate
+    // is a valid coordinate in the level
+    public boolean isValidPoint(int x, int y) {
+        return !(x < 0 || y < 0 || x >= gridWidth || y >= gridHeight);
     }
 
 }
