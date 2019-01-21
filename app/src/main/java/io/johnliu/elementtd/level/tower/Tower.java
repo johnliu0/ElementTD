@@ -57,7 +57,7 @@ public abstract class Tower {
         this.name = name;
         attackTarget = AttackTarget.FIRST;
         attackTimer = 0;
-        attackRateNs = (long) (1.0f / attackRate) * 1000000000l;
+        attackRateNs = (long) (1000000000l / attackRate);
     }
 
     public void update(Level level) {
@@ -65,8 +65,24 @@ public abstract class Tower {
         if (attackTimer > attackRateNs) {
             attackTimer -= attackRateNs;
             // attack!
+
             ArrayList<Mob> mobs = level.getMobs();
-            Mob target = mobs.get(0);
+            // find all mobs in range first
+            ArrayList<Mob> mobsInRange = new ArrayList<Mob>();
+
+            for (Mob mob : mobs) {
+                float diffX = x + 0.5f - mob.getX();
+                float diffY = y + 0.5f - mob.getY();
+                if (diffX * diffX + diffY * diffY <= (mob.getRadius() + range) * (mob.getRadius() + range)) {
+                    mobsInRange.add(mob);
+                }
+            }
+
+            if (mobsInRange.size() == 0) {
+                return;
+            }
+
+            Mob target = mobsInRange.get(0);
             // determine which mob to hit
             switch (attackTarget) {
                 case FIRST:
@@ -113,7 +129,7 @@ public abstract class Tower {
 
     // returns a random value between the min and max damage
     protected float getDamage() {
-        return new Random().nextFloat() * (minDamage - maxDamage) + minDamage;
+        return new Random().nextFloat() * (maxDamage - minDamage) + minDamage;
     }
 
     public float getMinDamage() {

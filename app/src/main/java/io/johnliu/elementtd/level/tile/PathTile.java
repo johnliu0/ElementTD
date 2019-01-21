@@ -6,6 +6,7 @@ import android.graphics.Rect;
 
 import io.johnliu.elementtd.R;
 import io.johnliu.elementtd.ResourceLoader;
+import io.johnliu.elementtd.level.Level;
 
 public class PathTile extends Tile {
 
@@ -20,7 +21,7 @@ public class PathTile extends Tile {
     }
 
     @Override
-    public void update() {
+    public void update(Level level) {
 
     }
 

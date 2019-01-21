@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import io.johnliu.elementtd.level.Point2d;
 import io.johnliu.elementtd.level.mob.Mob;
 
 public class BasicProjectile extends Projectile {
@@ -15,7 +16,9 @@ public class BasicProjectile extends Projectile {
     public void render(Canvas canvas, float deltaTime) {
         Paint paint = new Paint();
         paint.setColor(new Color().rgb(128, 128, 0));
-        canvas.drawRect(x - 0.05f, y - 0.05f, x + 0.05f, y + 0.05f, paint);
+
+        Point2d pos = getInterpolatedPos(deltaTime);
+        canvas.drawRect(pos.x - 0.05f, pos.y - 0.05f, pos.x + 0.05f, pos.y + 0.05f, paint);
     }
 
 }

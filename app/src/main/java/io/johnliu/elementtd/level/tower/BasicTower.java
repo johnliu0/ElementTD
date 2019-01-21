@@ -18,7 +18,7 @@ public class BasicTower extends Tower {
                 y,
                 3,
                 6,
-                1.5f,
+                2.0f,
                 2.0f,
                 0.0f,
                 50.0f,

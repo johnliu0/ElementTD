@@ -6,6 +6,7 @@ import android.graphics.Rect;
 
 import io.johnliu.elementtd.R;
 import io.johnliu.elementtd.ResourceLoader;
+import io.johnliu.elementtd.level.Level;
 
 public class TerrainTile extends Tile {
 
@@ -20,8 +21,10 @@ public class TerrainTile extends Tile {
     }
 
     @Override
-    public void update() {
-
+    public void update(Level level) {
+        if (tower != null) {
+            tower.update(level);
+        }
     }
 
     @Override

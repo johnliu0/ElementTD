@@ -2,6 +2,7 @@ package io.johnliu.elementtd.level.tile;
 
 import android.graphics.Canvas;
 
+import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.tower.Tower;
 
 public class Tile {
@@ -18,7 +19,7 @@ public class Tile {
         this.tower = null;
     }
 
-    public void update() {}
+    public void update(Level level) {}
 
     public void render(Canvas canvas, float deltaTime) {}
 

@@ -106,7 +106,7 @@ public class Level {
     public void update() {
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
-                tiles[x][y].update();
+                tiles[x][y].update(this);
             }
         }
 
@@ -155,7 +155,10 @@ public class Level {
 
         for (Mob mob : mobs) {
             mob.render(canvas, deltaTime);
+        }
 
+        for (Projectile projectile : projectiles) {
+            projectile.render(canvas, deltaTime);
         }
 
         tileInterface.render(canvas, deltaTime);
@@ -188,8 +191,10 @@ public class Level {
             }
         } else {
             // otherwise focus on the selected tile
-            tileInterface.setTile(tiles[(int) tileX][(int) tileY]);
-            return;
+            if (!tiles[(int) tileX][(int) tileY].isMobPassable()) {
+                tileInterface.setTile(tiles[(int) tileX][(int) tileY]);
+                return;
+            }
         }
 
         // check for mob interaction
@@ -314,6 +319,14 @@ public class Level {
             return tiles[x][y];
         }
         return null;
+    }
+
+    public float getMana() {
+        return mana;
+    }
+
+    public float getLives() {
+        return numLives;
     }
 
     // returns whether or not the given coordinate

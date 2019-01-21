@@ -1,6 +1,8 @@
 package io.johnliu.elementtd.level.gui.tileinterface;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import java.util.Stack;
 
@@ -29,6 +31,17 @@ public class TileInterface {
     public void update() {}
 
     public void render(Canvas canvas, float deltaTime) {
+        // range of tower
+        if (selectedTile != null && selectedTile.getTower() != null) {
+            Paint paint = new Paint();
+            paint.setColor(Color.argb(32, 0, 0, 0));
+            canvas.drawCircle(selectedTile.getX() + 0.5f, selectedTile.getY() + 0.5f, selectedTile.getTower().getRange(), paint);
+            paint.setColor(Color.rgb( 0, 0, 0));
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(0.015f);
+            canvas.drawCircle(selectedTile.getX() + 0.5f, selectedTile.getY() + 0.5f, selectedTile.getTower().getRange(), paint);
+        }
+
         if (layoutStack.size() > 0) {
             Layout layout = layoutStack.peek();
             layout.render(canvas, deltaTime);

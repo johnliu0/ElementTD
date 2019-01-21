@@ -3,6 +3,7 @@ package io.johnliu.elementtd.level.projectile;
 import android.graphics.Canvas;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.level.Point2d;
 import io.johnliu.elementtd.level.mob.Mob;
 
 public abstract class Projectile {
@@ -38,6 +39,27 @@ public abstract class Projectile {
 
     // returns whether or not this projectile should be removed
     public boolean update() {
+        Point2d move = move(Game.TICK_TIME);
+        float diffX = target.getX() - move.x;
+        float diffY = target.getY() - move.y;
+        if (diffX * diffX + diffY * diffY < target.getRadius() * target.getRadius()) {
+            target.takeDamage(damage, armorPiercing);
+            return true;
+        }
+
+        x = move.x;
+        y = move.y;
+        return false;
+    }
+
+    public abstract void render(Canvas canvas, float deltaTime);
+
+    // smooths out rendering
+    protected Point2d getInterpolatedPos(float deltaTime) {
+        return move(deltaTime);
+    }
+
+    private Point2d move(float deltaTime) {
         float diffX = target.getX() - x;
         float diffY = target.getY() - y;
         // normalize direction
@@ -46,24 +68,16 @@ public abstract class Projectile {
         diffX /= diffLen;
         diffY /= diffLen;
         // adjust for speed
-        diffX *= speed * Game.TICK_TIME;
-        diffY *= speed * Game.TICK_TIME;
-
+        diffX *= speed * deltaTime;
+        diffY *= speed * deltaTime;
         float moveSqr = diffX * diffX + diffY * diffY;
 
-        // check if the projectile has reached the target
         if (moveSqr >= diffSqr) {
-            target.takeDamage(damage, armorPiercing);
-            return true;
+            return new Point2d(target.getX(), target.getY());
         }
 
-        x += diffX;
-        y += diffY;
-
-        return false;
+        return new Point2d(x + diffX, y + diffY);
     }
-
-    public abstract void render(Canvas canvas, float deltaTime);
 
     public float getX() {
         return x;

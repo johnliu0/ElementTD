@@ -183,7 +183,7 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                 elapsedTime += deltaTime;
                 if (elapsedTime >= 5000000000L) {
                     elapsedTime -= 5000000000L;
-                    System.out.println("ups: " + (updateFps / 5) + " | fps: " + (renderFps / 5));
+                    //System.out.println("ups: " + (updateFps / 5) + " | fps: " + (renderFps / 5));
                     updateFps = 0;
                     renderFps = 0;
                 }

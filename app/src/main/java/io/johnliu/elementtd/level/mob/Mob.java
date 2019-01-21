@@ -1,6 +1,8 @@
 package io.johnliu.elementtd.level.mob;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
 import java.util.ArrayList;
 
@@ -15,6 +17,7 @@ public abstract class Mob {
 
     protected float speed;
     protected float health;
+    protected float maxHealth;
     // armor will act as a flat reduction on damage taken
     protected float armor;
     // size of the mob
@@ -30,6 +33,7 @@ public abstract class Mob {
         this.y = y;
         this.speed = speed;
         this.health = health;
+        this.maxHealth = health;
         this.armor = armor;
         this.radius = radius;
 
@@ -48,18 +52,25 @@ public abstract class Mob {
             return true;
         }
 
-        Point2d newPos = mobPath.move(x, y, speed * Game.TICK_TIME);
-        this.x = newPos.x;
-        this.y = newPos.y;
+        Point2d move = mobPath.move(x, y, speed * Game.TICK_TIME);
+        this.x = move.x;
+        this.y = move.y;
 
         return false;
     }
 
-    public void render(Canvas canvas, float deltaTime) {}
+    public void render(Canvas canvas, float deltaTime) {
+        // health bar
+        Paint paint = new Paint();
+        paint.setColor(Color.rgb(255, 0, 0));
+        canvas.drawRect(x - radius, y - radius - 0.05f, x + radius, y - radius, paint);
+        paint.setColor(Color.rgb(0, 255, 0));
+        canvas.drawRect(x - radius, y - radius - 0.05f, x + radius - (1.0f - health / maxHealth) * 2.0f * radius, y - radius, paint);
+    }
 
-    // smooth movement for rendering
-    protected Point2d getInterpolatedPos(float x, float y, float deltaTime) {
-        return mobPath.move(x, y,  speed * deltaTime);
+    // smooths out rendering
+    protected Point2d getInterpolatedPos(float deltaTime) {
+        return mobPath.move(x, y, speed * deltaTime);
     }
 
     public void takeDamage(float damage, float armorPiercing) {
@@ -91,6 +102,10 @@ public abstract class Mob {
 
     public float getArmor() {
         return armor;
+    }
+
+    public float getRadius() {
+        return radius;
     }
 
     public float getDistanceLeft() {

@@ -15,6 +15,7 @@ public class MobPath {
         calcDistanceLeft(target.x, target.y);
     }
 
+    // returns a vector representing how much to displace
     public Point2d move(float x, float y, float dist) {
         do {
             float diffX = target.x + 0.5f - x;
