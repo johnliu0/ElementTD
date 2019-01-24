@@ -7,9 +7,9 @@ import android.view.ScaleGestureDetector;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.gamestate.StateManager;
 import io.johnliu.elementtd.level.gui.tileinterface.TileInterface;
-import io.johnliu.elementtd.level.gui.LevelGui;
-import io.johnliu.elementtd.level.gui.tileinterface.TileInterface;
+import io.johnliu.elementtd.level.LevelGui;
 import io.johnliu.elementtd.level.mob.BasicMob;
 import io.johnliu.elementtd.level.mob.Mob;
 import io.johnliu.elementtd.level.mob.MobPathFinder;
@@ -19,6 +19,8 @@ import io.johnliu.elementtd.level.tower.BasicTower;
 import io.johnliu.elementtd.level.tower.Tower;
 
 public class Level {
+
+    private StateManager stateManager;
 
     /**
      * Map specification
@@ -50,6 +52,7 @@ public class Level {
     /**
      *  Game variables
      */
+    private boolean paused;
     private int numLives;
     // currency
     private float mana;
@@ -59,6 +62,7 @@ public class Level {
     private ArrayList<Projectile> projectiles;
     // list of all towers
     private ArrayList<Tower> towers;
+    private boolean fastForward;
     // currently selected tile
     //  private Point2di
 
@@ -67,12 +71,14 @@ public class Level {
      * A level can be loaded using the LevelLoader.
      */
     public Level(
+            StateManager stateManager,
             Tile[][] tiles, // initial tile setup
             ArrayList<Point2di> startPoints, // start points for mobs
             Point2di endPoint, // end point for mobs
             int startLives, // number of lives to begin level with
             float startMana // amount of mana to begin level with
     ) {
+        this.stateManager = stateManager;
         this.gridWidth = tiles.length;
         this.gridHeight = tiles[0].length;
         // by default the tileWidth will be such that the
@@ -100,7 +106,11 @@ public class Level {
         float startX = startPoints.get(0).x + 0.5f;
         float startY = startPoints.get(0).y + 0.5f;
 
+        fastForward = false;
+
         mobs.add(new BasicMob(startX, startY));
+
+        paused = false;
     }
 
     public void update() {
@@ -172,8 +182,7 @@ public class Level {
     }
 
     public void onTap(MotionEvent e) {
-        // first check for gui interaction
-        if (gui.onPress(e.getX(), e.getY())) {
+        if (gui.onTap(e.getX(), e.getY())) {
             return;
         }
 
@@ -202,7 +211,11 @@ public class Level {
 
 
     // pan level around
-    public void onScroll(float x, float y) {
+    public void onScroll(MotionEvent e1, MotionEvent e2, float x, float y) {
+        if (gui.onScroll(e1.getX(), e1.getY(), x, y)) {
+            return;
+        }
+
         this.offsetX -= x;
         this.offsetY -= y;
         calcOffset();
@@ -210,6 +223,10 @@ public class Level {
 
     // zoom in and out of level
     public void onScale(ScaleGestureDetector detector) {
+        if (gui.onScale(detector.getFocusX(), detector.getFocusY(), detector.getScaleFactor())) {
+            return;
+        }
+
         //zoomScale *= detector.getScaleFactor();
         if (zoomScale > 2.0f) {
             zoomScale = 2.0f;
@@ -275,6 +292,11 @@ public class Level {
         }
     }
 
+    public void pauseGame() {
+        paused = true;
+        //stateManager.pushState(new SettingsState(stateManager));
+    }
+
     public int getGridWidth() {
         return gridWidth;
     }
@@ -292,6 +314,10 @@ public class Level {
         }
 
         return tiles[x][y].isMobPassable();
+    }
+
+    public void toggleFastForward() {
+        fastForward = !fastForward;
     }
 
     public ArrayList<Mob> getMobs() {
@@ -327,6 +353,10 @@ public class Level {
 
     public float getLives() {
         return numLives;
+    }
+
+    public boolean isFastForward() {
+        return fastForward;
     }
 
     // returns whether or not the given coordinate

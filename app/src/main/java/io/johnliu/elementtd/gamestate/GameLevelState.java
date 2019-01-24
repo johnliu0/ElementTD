@@ -7,13 +7,14 @@ import android.view.ScaleGestureDetector;
 import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.LevelLoader;
 
-public class StateGameLevel extends State {
+public class GameLevelState extends State {
 
     private Level level;
 
-    public StateGameLevel() {
+    public GameLevelState(StateManager stateManager) {
+        super(stateManager);
         try {
-            this.level = LevelLoader.loadLevel("level1.txt");
+            this.level = LevelLoader.loadLevel("level1.txt", stateManager);
         } catch (Exception e) {
             System.out.println("Failed to load level1.txt");
             e.printStackTrace(System.out);
@@ -37,7 +38,7 @@ public class StateGameLevel extends State {
 
     @Override
     public void onScroll(MotionEvent e1, MotionEvent e2, float x, float y) {
-        level.onScroll(x, y);
+        level.onScroll(e1, e2, x, y);
     }
 
     @Override

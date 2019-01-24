@@ -32,6 +32,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public static float FONT_SIZE_MD;
     public static float FONT_SIZE_LG;
 
+
+    public static float MASTER_VOLUME = 0.7f;
+    public static float MUSIC_VOLUME = 0.3f;
+    public static float FX_VOLUME = 0.5f;
+
+
     private GameThread thread;
     private StateManager stateManager;
 
@@ -44,10 +50,6 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         this.FONT_SIZE_SM = displayDensity * 12;
         this.FONT_SIZE_MD = displayDensity * 18;
         this.FONT_SIZE_LG = displayDensity * 24;
-
-
-
-
 
 
         ResourceLoader.getInstance().setResources(getResources());

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.gamestate.StateManager;
 import io.johnliu.elementtd.level.tile.PathTile;
 import io.johnliu.elementtd.level.tile.TerrainTile;
 import io.johnliu.elementtd.level.tile.Tile;
@@ -19,7 +20,7 @@ public class LevelLoader {
 
     }
 
-    public static Level loadLevel(String levelFile) throws Exception {
+    public static Level loadLevel(String levelFile, StateManager stateManager) throws Exception {
         InputStream inputStream = Game.ASSETS.open(levelFile);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line = reader.readLine();
@@ -123,6 +124,6 @@ public class LevelLoader {
 
         reader.close();
 
-        return new Level (tiles, startPoints, endPoint, startLives, startMana);
+        return new Level(stateManager, tiles, startPoints, endPoint, startLives, startMana);
     }
 }
