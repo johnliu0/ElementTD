@@ -1,9 +1,8 @@
 package io.johnliu.elementtd.level.tile;
 
-import android.graphics.Canvas;
-
 import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.tower.Tower;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class Tile {
 
@@ -21,7 +20,7 @@ public class Tile {
 
     public void update(Level level) {}
 
-    public void render(Canvas canvas, float deltaTime) {}
+    public void render(RenderEngine engine) {}
 
     public void removeTower() {
         tower = null;

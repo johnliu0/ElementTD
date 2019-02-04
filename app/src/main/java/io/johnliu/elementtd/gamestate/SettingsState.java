@@ -1,9 +1,9 @@
 package io.johnliu.elementtd.gamestate;
 
-import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
+import io.johnliu.elementtd.renderengine.RenderEngine;
 import io.johnliu.elementtd.settings.Settings;
 
 public class SettingsState extends State {
@@ -17,13 +17,11 @@ public class SettingsState extends State {
     }
 
     @Override
-    public void update() {
-        //this.settings.update();
-    }
+    public void update() {}
 
     @Override
-    public void render(Canvas canvas, float deltaTime) {
-        this.settings.render(canvas, deltaTime);
+    public void render(RenderEngine engine) {
+        this.settings.render(engine);
     }
 
     @Override

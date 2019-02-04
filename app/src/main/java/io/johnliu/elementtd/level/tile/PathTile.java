@@ -1,12 +1,11 @@
 package io.johnliu.elementtd.level.tile;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import io.johnliu.elementtd.R;
 import io.johnliu.elementtd.ResourceLoader;
-import io.johnliu.elementtd.level.Level;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class PathTile extends Tile {
 
@@ -21,13 +20,8 @@ public class PathTile extends Tile {
     }
 
     @Override
-    public void update(Level level) {
-
-    }
-
-    @Override
-    public void render(Canvas canvas, float deltaTime) {
-        canvas.drawBitmap(getBitmap(), null, new Rect(x, y, x + 1, y + 1), null);
+    public void render(RenderEngine engine) {
+        engine.getCanvas().drawBitmap(getBitmap(), null, new Rect(x, y, x + 1, y + 1), null);
     }
 
     private Bitmap getBitmap() {

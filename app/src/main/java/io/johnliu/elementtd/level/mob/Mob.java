@@ -1,16 +1,17 @@
 package io.johnliu.elementtd.level.mob;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-
 import java.util.ArrayList;
 
-import io.johnliu.elementtd.Game;
-import io.johnliu.elementtd.level.Point2d;
+import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.projectile.ProjectileEffect;
+import io.johnliu.elementtd.math.Vec2f;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class Mob {
+
+    public static final int STATE_ALIVE = 0;
+    public static final int STATE_DEAD = 1;
+    public static final int STATE_REACHED_END = 2;
 
     protected float x;
     protected float y;
@@ -22,13 +23,27 @@ public abstract class Mob {
     protected float armor;
     // size of the mob
     protected float radius;
-
+    // how much mana is granted for killing this mob
+    protected int killReward;
+    // how many lives are lost if this mob reaches the end
+    protected int endPenalty;
+    // state of the mob (states described above)
+    protected int mobState;
+    // any effects from projectiles
+    protected ArrayList<ProjectileEffect> projEffects;
     // the path that this mob will traverse
     protected MobPath mobPath;
 
-    protected ArrayList<ProjectileEffect> projEffects;
-
-    public Mob(float x, float y, float speed, float health, float armor, float radius) {
+    public Mob(
+            float x,
+            float y,
+            float speed,
+            float health,
+            float armor,
+            float radius,
+            int killReward,
+            int endPenalty
+    ) {
         this.x = x;
         this.y = y;
         this.speed = speed;
@@ -36,42 +51,34 @@ public abstract class Mob {
         this.maxHealth = health;
         this.armor = armor;
         this.radius = radius;
-
+        this.killReward = killReward;
+        this.endPenalty = endPenalty;
+        this.projEffects = new ArrayList();
         mobPath = new MobPath(x, y);
-
-        this.projEffects = new ArrayList<ProjectileEffect>();
+        mobState = STATE_ALIVE;
     }
 
-    // returns whether or not this mob should be removed
-    public boolean update() {
+    public void update() {
         for (ProjectileEffect effect : projEffects) {
             effect.update();
         }
 
-        if (health <= 0) {
-            return true;
+        if (health <= 0.0f) {
+            mobState = STATE_DEAD;
         }
 
-        Point2d move = mobPath.move(x, y, speed * Game.TICK_TIME);
-        this.x = move.x;
-        this.y = move.y;
+        Vec2f newPos = mobPath.move(x, y, speed * Level.getTickTime());
+        x = newPos.x;
+        y = newPos.y;
 
-        return false;
+        if (mobPath.hasReachedEnd()) {
+            mobState = STATE_REACHED_END;
+        }
     }
 
-    public void render(Canvas canvas, float deltaTime) {
-        // health bar
-        Paint paint = new Paint();
-        paint.setColor(Color.rgb(255, 0, 0));
-        canvas.drawRect(x - radius, y - radius - 0.05f, x + radius, y - radius, paint);
-        paint.setColor(Color.rgb(0, 255, 0));
-        canvas.drawRect(x - radius, y - radius - 0.05f, x + radius - (1.0f - health / maxHealth) * 2.0f * radius, y - radius, paint);
-    }
+    public abstract void render(RenderEngine engine);
 
-    // smooths out rendering
-    protected Point2d getInterpolatedPos(float deltaTime) {
-        return mobPath.move(x, y, speed * deltaTime);
-    }
+    public abstract void renderHealthBar(RenderEngine engine);
 
     public void takeDamage(float damage, float armorPiercing) {
         // calculate bonus damage from armor piercing
@@ -81,7 +88,12 @@ public abstract class Mob {
         if (armorDamage < 0) {
             armorDamage = 0;
         }
+
         health -= damage + armorDamage;
+
+        if (health < 0.0f) {
+            health = 0.0f;
+        }
     }
 
     public float getX() {
@@ -108,13 +120,20 @@ public abstract class Mob {
         return radius;
     }
 
-    public float getDistanceLeft() {
-        return mobPath.getDistanceLeft();
+    public int getKillReward() {
+        return killReward;
     }
 
-    // updates the mob's position
-    private void updatePosition() {
+    public int getEndPenalty() {
+        return endPenalty;
+    }
 
+    public int getState() {
+        return mobState;
+    }
+
+    public float getDistanceLeft() {
+        return mobPath.getDistanceLeft();
     }
 
 }

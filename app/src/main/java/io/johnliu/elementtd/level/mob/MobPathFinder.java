@@ -3,7 +3,7 @@ package io.johnliu.elementtd.level.mob;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.level.Level;
-import io.johnliu.elementtd.level.Point2di;
+import io.johnliu.elementtd.math.Vec2i;
 
 public class MobPathFinder {
 
@@ -11,7 +11,7 @@ public class MobPathFinder {
 
     private int gridWidth;
     private int gridHeight;
-    private Point2di endPoint;
+    private Vec2i endPoint;
     private PathNode[][] nodes;
 
     public MobPathFinder() {
@@ -97,10 +97,10 @@ public class MobPathFinder {
 
     // simplifies the path by removing unnecessary nodes
     // that lie along a straight path
-    private ArrayList<Point2di> simplifyPath(ArrayList<Point2di> path) {
+    private ArrayList<Vec2i> simplifyPath(ArrayList<Vec2i> path) {
         // simplify the pathing by removing
         // unnecessary points
-        ArrayList<Point2di> finalPath = new ArrayList<Point2di>();
+        ArrayList<Vec2i> finalPath = new ArrayList();
         // add the start point
         finalPath.add(path.get(0));
         int firstDiffX = path.get(1).x - path.get(0).x;

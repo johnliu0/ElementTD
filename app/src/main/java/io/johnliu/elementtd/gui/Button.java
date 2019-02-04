@@ -1,7 +1,10 @@
 package io.johnliu.elementtd.gui;
 
-import android.graphics.Canvas;
 import android.graphics.Paint;
+
+import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.ResourceLoader;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class Button extends Widget {
 
@@ -10,12 +13,13 @@ public abstract class Button extends Widget {
     protected float posY;
 
     public Button() {
-        paint = new Paint();
-        posX = 0.0f;
-        posY = 0.0f;
+        this(0.0f, 0.0f);
     }
 
     public Button(float posX, float posY) {
+        paint = new Paint();
+        paint.setTypeface(ResourceLoader.getDefaultFontBold());
+        paint.setTextSize(Game.FONT_SIZE_LG);
         this.posX = posX;
         this.posY = posY;
     }
@@ -27,11 +31,14 @@ public abstract class Button extends Widget {
     public abstract void doAction();
 
     @Override
-    public abstract void render(Canvas canvas, float deltaTime);
+    public abstract void render(RenderEngine engine);
+
     @Override
     public abstract boolean onTap(float x, float y);
+
     @Override
     public abstract boolean onScroll(float startX, float startY, float dx, float dy);
+
     @Override
     public abstract boolean onScale(float x, float y, float scale);
 

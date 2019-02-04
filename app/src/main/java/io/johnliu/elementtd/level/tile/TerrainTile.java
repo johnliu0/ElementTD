@@ -1,12 +1,12 @@
 package io.johnliu.elementtd.level.tile;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Rect;
 
 import io.johnliu.elementtd.R;
 import io.johnliu.elementtd.ResourceLoader;
 import io.johnliu.elementtd.level.Level;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class TerrainTile extends Tile {
 
@@ -28,10 +28,10 @@ public class TerrainTile extends Tile {
     }
 
     @Override
-    public void render(Canvas canvas, float deltaTime) {
-        canvas.drawBitmap(getBitmap(), null, new Rect(x, y, x + 1, y + 1), null);
+    public void render(RenderEngine engine) {
+        engine.getCanvas().drawBitmap(getBitmap(), null, new Rect(x, y, x + 1, y + 1), null);
         if (tower != null) {
-            tower.render(canvas, deltaTime);
+            tower.render(engine);
         }
     }
 

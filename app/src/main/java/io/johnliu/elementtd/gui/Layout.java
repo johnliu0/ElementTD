@@ -1,8 +1,8 @@
 package io.johnliu.elementtd.gui;
 
-import android.graphics.Canvas;
-
 import java.util.ArrayList;
+
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class Layout {
 
@@ -12,9 +12,9 @@ public class Layout {
         widgets = new ArrayList<Widget>();
     }
 
-    public void render(Canvas canvas, float deltaTime) {
+    public void render(RenderEngine engine) {
         for (Widget widget : widgets) {
-            widget.render(canvas, deltaTime);
+            widget.render(engine);
         }
     }
 

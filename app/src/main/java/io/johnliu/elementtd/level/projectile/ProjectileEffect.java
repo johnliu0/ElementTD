@@ -1,6 +1,6 @@
 package io.johnliu.elementtd.level.projectile;
 
-import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.mob.Mob;
 
 public abstract class ProjectileEffect {
@@ -16,7 +16,7 @@ public abstract class ProjectileEffect {
     }
 
     public void update() {
-        timer += Game.TICK_TIME;
+        timer += Level.getTickTime();
     }
 
 }

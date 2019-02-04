@@ -1,18 +1,34 @@
 package io.johnliu.elementtd.gui;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.RectF;
+
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class CircleButton extends Button {
 
     protected float radius;
+    protected Bitmap icon;
 
-    public CircleButton(float cx, float cy, float radius) {
-        super(cx, cy);
+    public CircleButton(float x, float y, float radius) {
+        super(x, y);
         this.radius = radius;
+        icon = null;
+        init();
     }
 
     @Override
-    public abstract void render(Canvas canvas, float deltaTime);
+    public abstract void render(RenderEngine engine);
+
+    protected void renderIcon(Canvas canvas) {
+        if (icon != null) {
+            canvas.drawBitmap(icon, null, new RectF(
+                    posX - radius, posY - radius, posX + radius, posY + radius
+            ), null);
+        }
+    }
+
     @Override
     public abstract void doAction();
 

@@ -1,26 +1,30 @@
 package io.johnliu.elementtd.level;
 
-import android.graphics.Canvas;
+import android.graphics.Bitmap;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.gamestate.GameLevelPauseState;
 import io.johnliu.elementtd.gamestate.StateManager;
-import io.johnliu.elementtd.level.gui.tileinterface.TileInterface;
-import io.johnliu.elementtd.level.LevelGui;
-import io.johnliu.elementtd.level.mob.BasicMob;
 import io.johnliu.elementtd.level.mob.Mob;
 import io.johnliu.elementtd.level.mob.MobPathFinder;
+import io.johnliu.elementtd.level.mob.wave.WaveManager;
 import io.johnliu.elementtd.level.projectile.Projectile;
 import io.johnliu.elementtd.level.tile.Tile;
-import io.johnliu.elementtd.level.tower.BasicTower;
+import io.johnliu.elementtd.level.tower.AirTower;
 import io.johnliu.elementtd.level.tower.Tower;
+import io.johnliu.elementtd.math.Vec2i;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class Level {
 
+    private static float TICK_TIME;
+
     private StateManager stateManager;
+    private RenderEngine engine;
 
     /**
      * Map specification
@@ -32,15 +36,17 @@ public class Level {
     public static float tileWidth;
     private Tile[][] tiles;
     // list of all possible start locations for mobs
-    private ArrayList<Point2di> startPoints;
+    private ArrayList<Vec2i> startPoints;
     // end destination for all mobs
-    private Point2di endPoint;
+    private Vec2i endPoint;
 
     /**
      * Rendering
      */
     private LevelGui gui;
     private TileInterface tileInterface;
+    private String backgroundType;
+    private Bitmap backgroundBitmap;
     // zoom
     private float zoomScale = 1.0f;
     private float zoomScaleMin = 0.5f;
@@ -52,10 +58,13 @@ public class Level {
     /**
      *  Game variables
      */
+    private WaveManager waveManager;
     private boolean paused;
+    private float pausedDelta;
+
     private int numLives;
     // currency
-    private float mana;
+    private int mana;
     // list of all active mobs
     private ArrayList<Mob> mobs;
     // list of all projectile entities
@@ -73,11 +82,14 @@ public class Level {
     public Level(
             StateManager stateManager,
             Tile[][] tiles, // initial tile setup
-            ArrayList<Point2di> startPoints, // start points for mobs
-            Point2di endPoint, // end point for mobs
+            ArrayList<Vec2i> startPoints, // start points for mobs
+            Vec2i endPoint, // end point for mobs
             int startLives, // number of lives to begin level with
-            float startMana // amount of mana to begin level with
+            int startMana, // amount of mana to begin level with
+            WaveManager waveManager,
+            String backgroundType
     ) {
+        Level.TICK_TIME = Game.TICK_TIME;
         this.stateManager = stateManager;
         this.gridWidth = tiles.length;
         this.gridHeight = tiles[0].length;
@@ -87,6 +99,9 @@ public class Level {
         this.tiles = tiles;
         this.startPoints = startPoints;
         this.endPoint = endPoint;
+        this.waveManager = waveManager;
+
+        loadBackground(backgroundType);
 
         gui = new LevelGui(this);
         tileInterface = new TileInterface(this);
@@ -108,9 +123,8 @@ public class Level {
 
         fastForward = false;
 
-        mobs.add(new BasicMob(startX, startY));
-
         paused = false;
+        pausedDelta = 0.0f;
     }
 
     public void update() {
@@ -131,50 +145,56 @@ public class Level {
 
         projectiles.removeAll(removeProjectiles);
 
+        waveManager.update(this);
+
         ArrayList<Mob> removeMobs = new ArrayList<Mob>();
         for (Mob mob : mobs) {
             // the projectile update function will return
             // whether or not the mob should be removed
-            if (mob.update()) {
+            mob.update();
+
+            if (mob.getState() == Mob.STATE_DEAD) {
                 removeMobs.add(mob);
+                this.mana += mob.getKillReward();
+            } else if (mob.getState() == Mob.STATE_REACHED_END) {
+                removeMobs.add(mob);
+                this.numLives -= mob.getEndPenalty();
             }
         }
 
         mobs.removeAll(removeMobs);
-
-//        mobWaveTimer += Game.TICK_TIME;
-//        if (mobWaveTimer >= 1000) {
-//            mobWaveTimer = 0;
-//            Random rand = new Random();
-//            //mobs.add(new BasicMob(rand.nextFloat() * this.gridWidth, rand.nextFloat() * this.gridHeight));
-//        }
-//
-
     }
 
-    public void render(Canvas canvas, float deltaTime) {
-        canvas.translate(offsetX * zoomScale, offsetY * zoomScale);
-        canvas.scale(zoomScale, zoomScale, Game.DISPLAY_WIDTH / 2.0f + offsetX, Game.DISPLAY_HEIGHT / 2.0f + offsetY);
-        canvas.scale(tileWidth, tileWidth, 0.0f, 0.0f);
+    public void render(RenderEngine engine) {
+        this.engine = engine;
+        engine.translate(offsetX * zoomScale, offsetY * zoomScale);
+        engine.scale(zoomScale, zoomScale, Game.DISPLAY_WIDTH / 2.0f + offsetX, Game.DISPLAY_HEIGHT / 2.0f + offsetY);
+        engine.scale(tileWidth, tileWidth, 0.0f, 0.0f);
 
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
-                tiles[x][y].render(canvas, deltaTime);
+                tiles[x][y].render(engine);
             }
         }
 
         for (Mob mob : mobs) {
-            mob.render(canvas, deltaTime);
+            mob.render(engine);
+        }
+
+        // this is to prevent mobs from being drawn over the health bar
+        for (Mob mob : mobs) {
+            mob.renderHealthBar(engine);
         }
 
         for (Projectile projectile : projectiles) {
-            projectile.render(canvas, deltaTime);
+            projectile.render(engine);
         }
 
-        tileInterface.render(canvas, deltaTime);
+        tileInterface.render(engine);
+
         // clears transformations
-        canvas.setMatrix(null);
-        gui.render(canvas, deltaTime);
+        engine.clearTransform();
+        gui.render(engine);
     }
 
     public void addProjectile(Projectile projectile) {
@@ -194,7 +214,7 @@ public class Level {
         // defocus the tile if the user presses
         // anywhere outside of the tile interface buttons
         if (tileInterface.isTileSelected()) {
-            if (!tileInterface.onPress(tileX, tileY)) {
+            if (!tileInterface.onTap(tileX, tileY)) {
                 tileInterface.clearSelection();
                 return;
             }
@@ -257,6 +277,10 @@ public class Level {
         }
     }
 
+    public void restartLevel() {
+
+    }
+
     public boolean buildTower(int x, int y, int towerType) {
         if (!isValidPoint(x, y)) {
             return false;
@@ -264,8 +288,8 @@ public class Level {
 
         Tower tower = null;
         switch(towerType) {
-            case BasicTower.TOWER_ID:
-                tower = new BasicTower(x, y);
+            case LevelResources.AIR_TOWER_ID:
+                tower = new AirTower(x, y);
                 break;
         }
 
@@ -294,7 +318,13 @@ public class Level {
 
     public void pauseGame() {
         paused = true;
-        //stateManager.pushState(new SettingsState(stateManager));
+        stateManager.pushState(new GameLevelPauseState(stateManager, this));
+        engine.lockDeltaTime();
+    }
+
+    public void resumeGame() {
+        paused = false;
+        engine.unlockDeltaTime();
     }
 
     public int getGridWidth() {
@@ -318,17 +348,32 @@ public class Level {
 
     public void toggleFastForward() {
         fastForward = !fastForward;
+        if (fastForward) {
+            Level.TICK_TIME = Game.TICK_TIME * 2.0f;
+        } else {
+            Level.TICK_TIME = Game.TICK_TIME;
+        }
+    }
+
+    public void loadBackground(String backgroundType) {
+        if (backgroundType.equals("GRASSY_PLAINS")) {
+            this.backgroundType = backgroundType;
+        }
+    }
+
+    public void spawnMob(Mob mob) {
+        this.mobs.add(mob);
     }
 
     public ArrayList<Mob> getMobs() {
         return mobs;
     }
 
-    public ArrayList<Point2di> getStartPoints() {
+    public ArrayList<Vec2i> getStartPoints() {
         return startPoints;
     }
 
-    public Point2di getEndPoint() {
+    public Vec2i getEndPoint() {
         return endPoint;
     }
 
@@ -347,11 +392,11 @@ public class Level {
         return null;
     }
 
-    public float getMana() {
+    public int getMana() {
         return mana;
     }
 
-    public float getLives() {
+    public int getLivesLeft() {
         return numLives;
     }
 
@@ -363,6 +408,10 @@ public class Level {
     // is a valid coordinate in the level
     public boolean isValidPoint(int x, int y) {
         return !(x < 0 || y < 0 || x >= gridWidth || y >= gridHeight);
+    }
+
+    public static float getTickTime() {
+        return Level.TICK_TIME;
     }
 
 }

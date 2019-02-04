@@ -2,7 +2,6 @@ package io.johnliu.elementtd;
 
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -10,18 +9,18 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import io.johnliu.elementtd.gamestate.StateManager;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class Game extends SurfaceView implements SurfaceHolder.Callback {
 
     public static AssetManager ASSETS;
     // ticks/updates per second
-    public static final int UPDATE_FPS = 15     ;
+    public static final int UPDATE_FPS = 20;
     // how long a tick lasts for in seconds
     // used for kinematics calculations
     public static final float TICK_TIME = 1.0f / UPDATE_FPS;
     // how long a tick lasts for in nanoseconds
     // used for timers
-    public static final long TICK_TIME_NS = (long) (TICK_TIME * 1000000000l);
     public static int RENDER_FPS_MAX = 60;
 
     public static float DISPLAY_DENSITY;
@@ -37,8 +36,8 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     public static float MUSIC_VOLUME = 0.3f;
     public static float FX_VOLUME = 0.5f;
 
-
     private GameThread thread;
+    private RenderEngine renderEngine;
     private StateManager stateManager;
 
     public Game(Context context, float displayDensity, float displayWidth, float displayHeight, float aspectRatio) {
@@ -51,16 +50,15 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         this.FONT_SIZE_MD = displayDensity * 18;
         this.FONT_SIZE_LG = displayDensity * 24;
 
-
-        ResourceLoader.getInstance().setResources(getResources());
-
         ASSETS = context.getAssets();
+        ResourceLoader.getInstance().setResources(getResources());
 
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
 
         stateManager = new StateManager(this);
+        renderEngine = new RenderEngine();
     }
 
     public void update() {
@@ -68,7 +66,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void render(Canvas canvas, float deltaTime) {
-        stateManager.render(canvas, deltaTime);
+        renderEngine.setCanvas(canvas);
+        renderEngine.setDeltaTime(deltaTime);
+        stateManager.render(renderEngine);
     }
 
     public void onTap(MotionEvent e) {

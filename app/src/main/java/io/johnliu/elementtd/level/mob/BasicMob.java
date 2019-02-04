@@ -1,25 +1,33 @@
 package io.johnliu.elementtd.level.mob;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-
-import io.johnliu.elementtd.level.Point2d;
+import io.johnliu.elementtd.renderengine.RenderEngine;
+import io.johnliu.elementtd.renderengine.entity.BasicMobEntity;
 
 public class BasicMob extends Mob {
 
+    public static final int MOB_ID = 1;
+
+    private BasicMobEntity mobEntity;
+
     public BasicMob(float x, float y) {
-        super(x, y, 0.25f, 50.0f, 0.0f, 0.2f);
+        super(x, y, 0.75f, 50.0f, 0.0f, 0.2f, 5, 1);
+        mobEntity = new BasicMobEntity(x, y, 50.0f,0.2f);
     }
 
     @Override
-    public void render(Canvas canvas, float deltaTime) {
-        super.render(canvas, deltaTime);
-        Paint paint = new Paint();
-        paint.setColor(new Color().rgb(255, 0, 0));
-        float len = 0.1f;
-        Point2d pos = getInterpolatedPos(deltaTime * speed);
-        canvas.drawRect(pos.x - len, pos.y - len, pos.x + len, pos.y + len, paint);
+    public void update() {
+        super.update();
+        mobEntity.capture(x, y, health);
+    }
+
+    @Override
+    public void render(RenderEngine engine) {
+        mobEntity.render(engine);
+    }
+
+    @Override
+    public void renderHealthBar(RenderEngine engine) {
+        mobEntity.renderHealthBar(engine);
     }
 
 }

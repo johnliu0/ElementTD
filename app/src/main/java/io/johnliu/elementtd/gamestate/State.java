@@ -1,8 +1,9 @@
 package io.johnliu.elementtd.gamestate;
 
-import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class State {
 
@@ -12,8 +13,13 @@ public abstract class State {
         this.stateManager = stateManager;
     }
 
-    public abstract void update();
-    public abstract void render(Canvas canvas, float deltaTime);
+    public void update() {}
+    public void render(RenderEngine engine) {}
+
+    // method is called when this state is back on top of the state manager stack
+    public void onFocus() {};
+    // method is called when another state is pushed above this one on the state manager stack
+    public void onLoseFocus() {};
 
     public void onTap(MotionEvent e) {}
     public void onScroll(MotionEvent e1, MotionEvent e2, float x, float y) {}

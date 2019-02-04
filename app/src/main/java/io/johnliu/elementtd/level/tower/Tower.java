@@ -1,14 +1,12 @@
 package io.johnliu.elementtd.level.tower;
 
-import android.graphics.Canvas;
-
 import java.util.ArrayList;
 import java.util.Random;
 
-import io.johnliu.elementtd.Game;
 import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.mob.Mob;
 import io.johnliu.elementtd.level.projectile.Projectile;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class Tower {
 
@@ -20,12 +18,12 @@ public abstract class Tower {
     protected float attackRate;
     protected float range;
     protected float armorPen;
-    protected float manaCost;
-    protected float sellPrice;
+    protected int manaCost;
+    protected int sellPrice;
     protected String name;
 
-    private long attackTimer;
-    private long attackRateNs;
+    private float attackTimer;
+    private float attackRateTime;
 
     private enum AttackTarget {
         FIRST, LAST, WEAKEST, STRONGEST
@@ -41,8 +39,8 @@ public abstract class Tower {
             float attackRate,
             float range,
             float armorPen,
-            float manaCost,
-            float sellPrice,
+            int manaCost,
+            int sellPrice,
             String name
     ) {
         this.x = x;
@@ -57,13 +55,13 @@ public abstract class Tower {
         this.name = name;
         attackTarget = AttackTarget.FIRST;
         attackTimer = 0;
-        attackRateNs = (long) (1000000000l / attackRate);
+        attackRateTime = 1.0f / attackRate;
     }
 
     public void update(Level level) {
-        attackTimer += Game.TICK_TIME_NS;
-        if (attackTimer > attackRateNs) {
-            attackTimer -= attackRateNs;
+        attackTimer += Level.getTickTime();
+        while (attackTimer > attackRateTime) {
+            attackTimer -= attackRateTime;
             // attack!
 
             ArrayList<Mob> mobs = level.getMobs();
@@ -86,7 +84,7 @@ public abstract class Tower {
             // determine which mob to hit
             switch (attackTarget) {
                 case FIRST:
-                    for (Mob mob : mobs) {
+                    for (Mob mob : mobsInRange) {
                         if (mob.getDistanceLeft() < target.getDistanceLeft()) {
                             target = mob;
                         }
@@ -94,7 +92,7 @@ public abstract class Tower {
 
                     break;
                 case LAST:
-                    for (Mob mob : mobs) {
+                    for (Mob mob : mobsInRange) {
                         if (mob.getDistanceLeft() > target.getDistanceLeft()) {
                             target = mob;
                         }
@@ -102,7 +100,7 @@ public abstract class Tower {
 
                     break;
                 case WEAKEST:
-                    for (Mob mob : mobs) {
+                    for (Mob mob : mobsInRange) {
                         if (mob.getHealth() < target.getHealth()){
                             target = mob;
                         }
@@ -110,7 +108,7 @@ public abstract class Tower {
 
                     break;
                 case STRONGEST:
-                    for (Mob mob : mobs) {
+                    for (Mob mob : mobsInRange) {
                         if (mob.getHealth() > target.getHealth()) {
                             target = mob;
                         }
@@ -123,7 +121,7 @@ public abstract class Tower {
         }
     }
 
-    public abstract void render(Canvas canvas, float deltaTime);
+    public abstract void render(RenderEngine engine);
 
     protected abstract Projectile createProjectile(Mob target);
 

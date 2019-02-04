@@ -1,11 +1,11 @@
 package io.johnliu.elementtd.gamestate;
 
-import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.LevelLoader;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class GameLevelState extends State {
 
@@ -14,10 +14,10 @@ public class GameLevelState extends State {
     public GameLevelState(StateManager stateManager) {
         super(stateManager);
         try {
-            this.level = LevelLoader.loadLevel("level1.txt", stateManager);
+            this.level = LevelLoader.loadLevel("level2.txt", stateManager);
         } catch (Exception e) {
-            System.out.println("Failed to load level1.txt");
-            e.printStackTrace(System.out);
+            System.err.println("Failed to load level1.txt");
+            e.printStackTrace(System.err);
         }
     }
 
@@ -27,8 +27,13 @@ public class GameLevelState extends State {
     }
 
     @Override
-    public void render(Canvas canvas, float deltaTime) {
-        level.render(canvas, deltaTime);
+    public void render(RenderEngine engine) {
+        level.render(engine);
+    }
+
+    @Override
+    public void onFocus() {
+        level.resumeGame();
     }
 
     @Override

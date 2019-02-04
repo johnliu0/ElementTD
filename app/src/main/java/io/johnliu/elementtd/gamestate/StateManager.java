@@ -1,12 +1,12 @@
 package io.johnliu.elementtd.gamestate;
 
-import android.graphics.Canvas;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
 import java.util.Stack;
 
 import io.johnliu.elementtd.Game;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class StateManager {
 
@@ -16,7 +16,8 @@ public class StateManager {
     public StateManager(Game game) {
         this.game = game;
         stateStack = new Stack<State>();
-        stateStack.push(new GameLevelState(this));
+        stateStack.push(new MainMenuState(this));
+        //stateStack.push(new GameLevelState(this));
     }
 
     public void update() {
@@ -25,21 +26,42 @@ public class StateManager {
         }
     }
 
-    public void render(Canvas canvas, float deltaTime) {
+    public void render(RenderEngine engine) {
         for (State state : stateStack) {
-            state.render(canvas, deltaTime);
+            state.render(engine);
         }
     }
 
     public State popState() {
         if (!stateStack.empty()) {
-            return stateStack.pop();
+            State state = stateStack.pop();
+            if (!stateStack.empty()) {
+                stateStack.peek().onFocus();
+            }
+
+            return state;
         }
         return null;
     }
 
     public void pushState(State state) {
+        if (!stateStack.empty()) {
+            stateStack.peek().onLoseFocus();
+        }
+
         this.stateStack.push(state);
+    }
+
+    public void clearAndSetState(State state) {
+        if (!stateStack.empty()) {
+            stateStack.peek().onLoseFocus();
+        }
+
+        while (!stateStack.empty()) {
+            stateStack.pop();
+        }
+
+        stateStack.push(state);
     }
 
     public void onTap(MotionEvent e) {

@@ -1,10 +1,9 @@
 package io.johnliu.elementtd.level.projectile;
 
-import android.graphics.Canvas;
-
-import io.johnliu.elementtd.Game;
-import io.johnliu.elementtd.level.Point2d;
+import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.mob.Mob;
+import io.johnliu.elementtd.math.Vec2f;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class Projectile {
 
@@ -39,7 +38,7 @@ public abstract class Projectile {
 
     // returns whether or not this projectile should be removed
     public boolean update() {
-        Point2d move = move(Game.TICK_TIME);
+        Vec2f move = move(Level.getTickTime());
         float diffX = target.getX() - move.x;
         float diffY = target.getY() - move.y;
         if (diffX * diffX + diffY * diffY < target.getRadius() * target.getRadius()) {
@@ -52,14 +51,9 @@ public abstract class Projectile {
         return false;
     }
 
-    public abstract void render(Canvas canvas, float deltaTime);
+    public abstract void render(RenderEngine engine);
 
-    // smooths out rendering
-    protected Point2d getInterpolatedPos(float deltaTime) {
-        return move(deltaTime);
-    }
-
-    private Point2d move(float deltaTime) {
+    private Vec2f move(float deltaTime) {
         float diffX = target.getX() - x;
         float diffY = target.getY() - y;
         // normalize direction
@@ -73,10 +67,10 @@ public abstract class Projectile {
         float moveSqr = diffX * diffX + diffY * diffY;
 
         if (moveSqr >= diffSqr) {
-            return new Point2d(target.getX(), target.getY());
+            return new Vec2f(target.getX(), target.getY());
         }
 
-        return new Point2d(x + diffX, y + diffY);
+        return new Vec2f(x + diffX, y + diffY);
     }
 
     public float getX() {

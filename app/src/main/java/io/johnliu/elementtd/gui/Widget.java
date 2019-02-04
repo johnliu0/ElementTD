@@ -1,6 +1,6 @@
 package io.johnliu.elementtd.gui;
 
-import android.graphics.Canvas;
+import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public abstract class Widget {
 
@@ -19,7 +19,7 @@ public abstract class Widget {
 
     public void init() {}
 
-    public abstract void render(Canvas canvas, float deltaTime);
+    public abstract void render(RenderEngine engine);
     public abstract boolean onTap(float x, float y);
     public abstract boolean onScroll(float startX, float startY, float dx, float dy);
     public abstract boolean onScale(float x, float y, float scale);

@@ -1,0 +1,44 @@
+//MAP SPECIFICATION
+
+BACKGROUND_TYPE=GRASSY_PLAINS
+START_LIVES=30
+START_MANA=100
+
+GRID_WIDTH=16
+GRID_HEIGHT=9
+
+// . = nothing
+// # = tile
+// E = end
+// 1-9 = spawn position (1 through 9)
+
+START_LEVEL_GRID
+................
+....###..###....
+....#.#..#.#....
+....#.#..#.#....
+1####.#..#.####E
+......#..#......
+......#..#......
+......####......
+................
+END_LEVEL_GRID
+
+// mob type, start time, end time, number of mobs, spawn point
+
+// wave 1
+START_WAVE
+BASIC_MOB, 0, 1, 3, 1
+BASIC_MOB, 2, 3, 3, 1
+BASIC_MOB, 4, 5, 3, 1
+BASIC_MOB, 6, 7, 3, 1
+BASIC_MOB, 8, 9, 3, 1
+END_WAVE
+
+START_WAVE
+BASIC_MOB, 0, 4, 5, 1
+END_WAVE
+
+START_WAVE
+BASIC_MOB, 0, 8, 15, 1
+END_WAVE
