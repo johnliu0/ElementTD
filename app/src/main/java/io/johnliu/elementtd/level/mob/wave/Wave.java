@@ -3,7 +3,9 @@ package io.johnliu.elementtd.level.mob.wave;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.level.Level;
-import io.johnliu.elementtd.level.mob.BasicMob;
+import io.johnliu.elementtd.level.LevelResources;
+import io.johnliu.elementtd.level.mob.WalklingMob;
+import io.johnliu.elementtd.level.mob.GoblinMob;
 import io.johnliu.elementtd.level.mob.Mob;
 
 public class Wave {
@@ -33,8 +35,10 @@ public class Wave {
             WaveUnit unit = waveUnits.get(unitIdx);
             if (unit.getSpawnTime() < waveTimer) {
                 Mob mob = null;
-                if (unit.getMobId() == 1) {
-                    mob = new BasicMob(unit.getSpawnX() + 0.5f, unit.getSpawnY() + 0.5f);
+                if (unit.getMobId() == LevelResources.WALKLING_MOB_ID) {
+                    mob = new WalklingMob(unit.getSpawnX() + 0.5f, unit.getSpawnY() + 0.5f);
+                } else if (unit.getMobId() == LevelResources.GOBLIN_MOB_ID) {
+                    mob = new GoblinMob(unit.getSpawnX() + 0.5f, unit.getSpawnY() + 0.5f);
                 }
 
                 if (mob != null) {

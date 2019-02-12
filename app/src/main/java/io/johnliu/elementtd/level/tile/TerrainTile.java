@@ -37,7 +37,7 @@ public class TerrainTile extends Tile {
 
     private Bitmap getBitmap() {
         if (bitmap == null) {
-            bitmap = ResourceLoader.decodeResource(R.drawable.grass1);
+            bitmap = ResourceLoader.decodeResource(R.drawable.grassy_plains_bg);
         }
         return bitmap;
     }

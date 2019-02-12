@@ -1,4 +1,4 @@
-package io.johnliu.elementtd.renderengine.entity;
+package io.johnliu.elementtd.renderengine.entity.projectile;
 
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -11,13 +11,18 @@ public class ProjectileEntity {
 
     protected static Paint paint = null;
     protected float[] positions;
+    protected float targetX;
+    protected float targetY;
 
-    public ProjectileEntity(float x, float y) {
+    public ProjectileEntity(float x, float y, float targetX, float targetY) {
         positions = new float[] {x, y, x, y};
 
         if (paint == null) {
             paint = new Paint();
         }
+
+        this.targetX = targetX;
+        this.targetY = targetY;
     }
 
     public void render(RenderEngine engine) {
@@ -46,5 +51,4 @@ public class ProjectileEntity {
         positions[2] = x;
         positions[3] = y;
     }
-
 }

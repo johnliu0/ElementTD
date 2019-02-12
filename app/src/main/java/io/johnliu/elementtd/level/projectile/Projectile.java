@@ -2,6 +2,7 @@ package io.johnliu.elementtd.level.projectile;
 
 import io.johnliu.elementtd.level.Level;
 import io.johnliu.elementtd.level.mob.Mob;
+import io.johnliu.elementtd.level.projectile.effect.ProjectileEffect;
 import io.johnliu.elementtd.math.Vec2f;
 import io.johnliu.elementtd.renderengine.RenderEngine;
 
@@ -25,7 +26,8 @@ public abstract class Projectile {
             float speed,
             float damage,
             float armorPiercing,
-            Mob target
+            Mob target,
+            ProjectileEffect effect
     ) {
         this.x = x;
         this.y = y;
@@ -33,7 +35,7 @@ public abstract class Projectile {
         this.damage = damage;
         this.armorPiercing = armorPiercing;
         this.target = target;
-        effect = null;
+        this.effect = effect;
     }
 
     // returns whether or not this projectile should be removed
@@ -43,6 +45,10 @@ public abstract class Projectile {
         float diffY = target.getY() - move.y;
         if (diffX * diffX + diffY * diffY < target.getRadius() * target.getRadius()) {
             target.takeDamage(damage, armorPiercing);
+            if (effect != null) {
+                target.applyEffect(effect);
+            }
+
             return true;
         }
 

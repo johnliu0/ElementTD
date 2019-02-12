@@ -21,8 +21,9 @@ public class LevelGui extends Layout {
     private RectButton fastForwardButton;
     private RectButton pauseButton;
 
-    private Bitmap livesLeftIcon;
+    private Bitmap heartIcon;
     private Bitmap manaIcon;
+    private Bitmap heartManaBg;
 
     public LevelGui(Level level) {
         this.level = level;
@@ -36,31 +37,31 @@ public class LevelGui extends Layout {
         paint.setTextSize(Game.FONT_SIZE_MD);
         float height = (paint.getFontMetrics().descent - paint.getFontMetrics().ascent);
         float padding = height / 7.0f;
-        height += 2 * padding;
+        height += 2.0f * padding;
         float left = Game.DISPLAY_WIDTH / 6.0f;
 
         Canvas canvas = engine.getCanvas();
-        // lives left and mana
-        // background
-        paint.setColor(Color.rgb(96, 96, 96));
-        canvas.drawRect(left, 0.0f, left + 7.0f * height, height, paint);
+        // background for lives left and mana
+        canvas.drawBitmap(heartManaBg, null, new RectF(left, 0.0f, left + 6.0f * height, height), paint);
         // icon
-        canvas.drawBitmap(livesLeftIcon, null, new RectF(
+        canvas.drawBitmap(heartIcon, null, new RectF(
                 left + padding, padding, left + height - padding, height - padding), paint);
         canvas.drawBitmap(manaIcon, null, new RectF(
                 left + 3.0f * height + padding, padding, left + 4.0f * height - padding, height - padding), paint);
+
         // value
         paint.setColor(Color.rgb(255, 255, 255));
-        canvas.drawText(Integer.toString(level.getLivesLeft()), left + 1.5f * height, (height / 4.0f) * 3.0f, paint);
-        canvas.drawText(Integer.toString(level.getMana()), left + 4.5f * height, (height / 4.0f) * 3.0f, paint);
+        canvas.drawText(Integer.toString(level.getLivesLeft()), left + 1.15f * height, (height / 4.0f) * 3.0f, paint);
+        canvas.drawText(Integer.toString(level.getMana()), left + 4.15f * height, (height / 4.0f) * 3.0f, paint);
     }
 
     public void initGui() {
         paint = new Paint();
         paint.setTypeface(ResourceLoader.getDefaultFont());
 
-        livesLeftIcon = ResourceLoader.decodeResource(R.drawable.heart_icon);
-        manaIcon = ResourceLoader.decodeResource(R.drawable.mana_icon);
+        heartIcon = ResourceLoader.decodeResource(R.drawable.icon_heart);
+        manaIcon = ResourceLoader.decodeResource(R.drawable.icon_mana);
+        heartManaBg = ResourceLoader.decodeResource(R.drawable.bg_heart_mana);
 
         fastForwardButton = new RectButton(
                 Game.DISPLAY_WIDTH / 16.0f * 14.0f,
@@ -73,8 +74,8 @@ public class LevelGui extends Layout {
 
             @Override
             public void init() {
-                iconOff = ResourceLoader.decodeResource(R.drawable.fast_forward_off_btn);
-                iconOn = ResourceLoader.decodeResource(R.drawable.fast_forward_on_btn);
+                iconOff = ResourceLoader.decodeResource(R.drawable.icon_fastforward_off);
+                iconOn = ResourceLoader.decodeResource(R.drawable.icon_fastforward_on);
             }
 
             @Override
@@ -104,7 +105,7 @@ public class LevelGui extends Layout {
 
             @Override
             public void init() {
-                icon = ResourceLoader.decodeResource(R.drawable.pause_btn);
+                icon = ResourceLoader.decodeResource(R.drawable.icon_pause);
             }
 
             @Override

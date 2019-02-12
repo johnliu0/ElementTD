@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import io.johnliu.elementtd.Game;
 import io.johnliu.elementtd.gamestate.StateManager;
-import io.johnliu.elementtd.level.mob.BasicMob;
 import io.johnliu.elementtd.level.mob.wave.WaveLoader;
 import io.johnliu.elementtd.level.mob.wave.WaveManager;
 import io.johnliu.elementtd.level.tile.PathTile;
@@ -18,11 +17,7 @@ import io.johnliu.elementtd.math.Vec2i;
 
 public class LevelLoader {
 
-    public LevelLoader() {
-
-    }
-
-    public static Level loadLevel(String levelFile, StateManager stateManager) throws IOException {
+    public Level loadLevel(String levelFile, StateManager stateManager) throws IOException {
         InputStream inputStream = Game.ASSETS.open(levelFile);
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
@@ -118,9 +113,8 @@ public class LevelLoader {
                 int mobId, num, start;
                 float startTime, endTime;
 
-                if (tokens[0].equals("BASIC_MOB")) {
-                    mobId = BasicMob.MOB_ID;
-                } else {
+                mobId = LevelResources.mobStringToId(tokens[0]);
+                if (mobId == -1) {
                     throw new IOException("Mob does not exist: " + tokens[0]);
                 }
 
@@ -180,7 +174,7 @@ public class LevelLoader {
      */
 
     // gets the next non-commented and non-whitespace line
-    private static String getNextValidLine(BufferedReader reader) throws IOException {
+    private String getNextValidLine(BufferedReader reader) throws IOException {
         String line;
         do {
             line = reader.readLine();
@@ -195,7 +189,7 @@ public class LevelLoader {
     }
 
     // extracts the value from a line in the KEY=VALUE format as a String
-    private static String getValue(BufferedReader reader, String key) throws IOException {
+    private String getValue(BufferedReader reader, String key) throws IOException {
         String line = getNextValidLine(reader);
 
         if (!line.startsWith(key)) {
@@ -219,7 +213,7 @@ public class LevelLoader {
     }
 
     // extracts an integer from a line in the KEY=VALUE format
-    private static int getInteger(BufferedReader reader, String key) throws IOException {
+    private int getInteger(BufferedReader reader, String key) throws IOException {
         String value = getValue(reader, key);
 
         try {
@@ -230,7 +224,7 @@ public class LevelLoader {
     }
 
     // extracts a decimal from a line in the KEY=VALUE format as a float
-    private static float getDecimal(BufferedReader reader, String key) throws IOException {
+    private float getDecimal(BufferedReader reader, String key) throws IOException {
         String value = getValue(reader, key);
 
         try {
@@ -241,22 +235,24 @@ public class LevelLoader {
     }
 
     // checks that the next line is equal to a given line
-    private static void expectLine(BufferedReader reader, String line) throws IOException {
+    private void expectLine(BufferedReader reader, String line) throws IOException {
         String nextLine = getNextValidLine(reader);
         if (!nextLine.equals(line)) {
             throw new IOException("Expected line " + line + " | line provided: " + nextLine);
         }
     }
 
-}
 
-class StartPoint {
-    int start;
-    int x;
-    int y;
-    public StartPoint(int start, int x, int y) {
-        this.start = start;
-        this.x = x;
-        this.y = y;
+    class StartPoint {
+        int start;
+        int x;
+        int y;
+        public StartPoint(int start, int x, int y) {
+            this.start = start;
+            this.x = x;
+            this.y = y;
+        }
     }
+
+
 }

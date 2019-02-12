@@ -1,6 +1,10 @@
 package io.johnliu.elementtd.level;
 
+import android.graphics.Bitmap;
+
 import java.util.HashMap;
+
+import io.johnliu.elementtd.R;
 
 public class LevelResources {
 
@@ -25,6 +29,12 @@ public class LevelResources {
     public static final String GOBLIN_MOB_STRING = "GOBLIN";
     public static final int HEAVY_GOBLIN_MOB_ID = 3;
     public static final String HEAVY_GOBLIN_MOB_STRING = "HEAVY_GOBLIN";
+
+    // projectile effects
+    public static final int BURNDOT_EFFECT = 1;
+    public static final String BURNDOT_EFFECT_STRING = "BURNDOT";
+    public static final int SLOW_EFFECT = 1;
+    public static final String SLOW_EFFECT_STRING = "SLOW";
 
     public LevelResources() {
         towerHashMap = new HashMap();

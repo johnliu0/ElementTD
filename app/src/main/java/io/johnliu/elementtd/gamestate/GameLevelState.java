@@ -14,7 +14,7 @@ public class GameLevelState extends State {
     public GameLevelState(StateManager stateManager) {
         super(stateManager);
         try {
-            this.level = LevelLoader.loadLevel("level2.txt", stateManager);
+            this.level = new LevelLoader().loadLevel("level2.txt", stateManager);
         } catch (Exception e) {
             System.err.println("Failed to load level1.txt");
             e.printStackTrace(System.err);

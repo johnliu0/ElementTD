@@ -1,4 +1,4 @@
-package io.johnliu.elementtd.renderengine.entity;
+package io.johnliu.elementtd.renderengine.entity.mob;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -26,6 +26,8 @@ public abstract class MobEntity {
     private float healthBarHeight = 0.03f;
     protected float radius;
     protected Vec2f interpPos;
+    // angle the mob is facing based on position
+    protected float angle;
 
     // rendering class for the Mob object
     public MobEntity(float x, float y, float maxHealth, float radius) {
@@ -102,6 +104,24 @@ public abstract class MobEntity {
         positions[4] = x;
         positions[5] = y;
         currentHealth = health;
+
+        float moveX = positions[4] - positions[2];
+        float moveY = positions[5] - positions[3];
+
+        float absX = Math.abs(moveX);
+        float absY = Math.abs(moveY);
+
+        float ang = (float) Math.toDegrees(Math.atan(absY / absX));
+
+        if (moveX < 0.0f && moveY < 0.0f) {
+            ang += 180.0f;
+        } else if (moveX < 0.0f) {
+            ang = 180.0f - ang;
+        } else if (moveY < 0.0f) {
+            ang = 360.0f - ang;
+        }
+
+        this.angle = ang;
     }
 
 }

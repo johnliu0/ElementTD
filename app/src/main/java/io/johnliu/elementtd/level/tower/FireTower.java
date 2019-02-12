@@ -1,38 +1,38 @@
 package io.johnliu.elementtd.level.tower;
 
 import io.johnliu.elementtd.level.mob.Mob;
-import io.johnliu.elementtd.level.projectile.AirProjectile;
+import io.johnliu.elementtd.level.projectile.FireProjectile;
 import io.johnliu.elementtd.level.projectile.Projectile;
 import io.johnliu.elementtd.renderengine.RenderEngine;
-import io.johnliu.elementtd.renderengine.entity.tower.AirTowerEntity;
+import io.johnliu.elementtd.renderengine.entity.tower.FireTowerEntity;
 
-public class AirTower extends Tower {
+public class FireTower extends Tower {
 
-    private AirTowerEntity airTowerEntity;
+    private FireTowerEntity fireTowerEntity;
 
-    public AirTower(int x, int y) {
+    public FireTower(int x, int y) {
         super(
                 x,
                 y,
-                5,
                 10,
-                2.5f,
+                15,
+                1.0f,
                 2.5f,
                 0.0f,
                 40,
                 25,
-                "Air Tower");
+                "Fire Tower");
 
-        airTowerEntity = new AirTowerEntity(x, y);
+        fireTowerEntity = new FireTowerEntity(x, y);
     }
 
     @Override
     public void render(RenderEngine engine) {
-        airTowerEntity.render(engine);
+        fireTowerEntity.render(engine);
     }
 
     @Override
     protected Projectile createProjectile(Mob target) {
-        return new AirProjectile(x + 0.5f, y + 0.5f, getDamage(), 0, target);
+        return new FireProjectile(x + 0.5f, y + 0.5f, getDamage(), 0, target);
     }
 }

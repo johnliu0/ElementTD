@@ -7,18 +7,18 @@ import io.johnliu.elementtd.R;
 import io.johnliu.elementtd.ResourceLoader;
 import io.johnliu.elementtd.renderengine.RenderEngine;
 
-public class AirTowerEntity extends TowerEntity {
+public class WaterTowerEntity extends TowerEntity {
 
     private static Bitmap bitmap = null;
     private RectF bitmapRect;
 
-    public AirTowerEntity(int x, int y) {
+    public WaterTowerEntity(int x, int y) {
         super(x, y);
 
         bitmapRect = new RectF(x, y, x + 1, y + 1);
 
         if (bitmap == null) {
-            bitmap = ResourceLoader.decodeResource(R.drawable.air_slab_1);
+            bitmap = ResourceLoader.decodeResource(R.drawable.water_slab_1);
         }
     }
 

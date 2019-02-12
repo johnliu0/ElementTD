@@ -1,14 +1,12 @@
-package io.johnliu.elementtd.renderengine.entity;
+package io.johnliu.elementtd.renderengine.entity.mob;
 
-import android.graphics.Canvas;
 import android.graphics.Color;
 
-import io.johnliu.elementtd.math.Vec2f;
 import io.johnliu.elementtd.renderengine.RenderEngine;
 
-public class BasicMobEntity extends MobEntity {
+public class WalklingMobEntity extends MobEntity {
 
-    public BasicMobEntity(float x, float y, float health, float radius) {
+    public WalklingMobEntity(float x, float y, float health, float radius) {
         super(x, y, health, radius);
     }
 

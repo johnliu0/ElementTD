@@ -2,8 +2,8 @@ package io.johnliu.elementtd.renderengine;
 
 import android.graphics.Canvas;
 
+import io.johnliu.elementtd.Game;
 import io.johnliu.elementtd.level.Level;
-import io.johnliu.elementtd.renderengine.entity.MobEntity;
 
 public class RenderEngine {
 
@@ -19,13 +19,16 @@ public class RenderEngine {
     // time since last rendering frame
     // used for timing animations
     private float deltaTimeRender;
+    // used for speeding up/slowing down the entire render engine delta time render
+    private float deltaTimeRenderSpeed;
 
-    public void RenderEngine() {
+    public RenderEngine() {
         canvas = null;
         deltaTime = 0.0f;
         prevDeltaTime = 0.0f;
         lockDeltaTime = false;
         deltaTimeRender = 0.0f;
+        deltaTimeRenderSpeed = 1.0f;
     }
 
     public void translate(float x, float y) {
@@ -54,13 +57,18 @@ public class RenderEngine {
         // if the difference is negative then an update
         // had been called since the last render frame
         if (diff < 0.0f) {
-            deltaTimeRender = Level.getTickTime() + diff;
+            //System.out.println(Level.getTickTime() + diff);
+            deltaTimeRender = Game.TICK_TIME + diff;
         } else {
             deltaTimeRender = diff;
         }
 
+        deltaTimeRender *= deltaTimeRenderSpeed;
+
+        //System.out.println(deltaTimeRender + ", " + deltaTimeRenderSpeed);
+
         if (!lockDeltaTime) {
-            prevDeltaTime = this.deltaTime;
+            prevDeltaTime = deltaTime;
         }
 
         this.deltaTime = deltaTime;
@@ -77,6 +85,10 @@ public class RenderEngine {
         return deltaTime;
     }
 
+    public boolean isDeltaTimeLocked() {
+        return lockDeltaTime;
+    }
+
     // returns the number of seconds elapsed since the last render frame
     // this variable will continue to change even when the deltaTime is locked
     // this variable should be used for anything that is not dependent on game logic e.g. animations
@@ -90,6 +102,14 @@ public class RenderEngine {
 
     public void unlockDeltaTime() {
         lockDeltaTime = false;
+    }
+
+    public float getDeltaTimeRenderSpeed() {
+        return deltaTimeRenderSpeed;
+    }
+
+    public void setDeltaTimeRenderSpeed(float speed) {
+        this.deltaTimeRenderSpeed = speed;
     }
 
 }

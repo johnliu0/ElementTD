@@ -3,7 +3,7 @@ package io.johnliu.elementtd.level.mob;
 import java.util.ArrayList;
 
 import io.johnliu.elementtd.level.Level;
-import io.johnliu.elementtd.level.projectile.ProjectileEffect;
+import io.johnliu.elementtd.level.projectile.effect.ProjectileEffect;
 import io.johnliu.elementtd.math.Vec2f;
 import io.johnliu.elementtd.renderengine.RenderEngine;
 
@@ -59,9 +59,15 @@ public abstract class Mob {
     }
 
     public void update() {
+        ArrayList<ProjectileEffect> removeEffect = new ArrayList();
         for (ProjectileEffect effect : projEffects) {
             effect.update();
+            if (effect.isDone()) {
+                removeEffect.add(effect);
+            }
         }
+
+        projEffects.removeAll(removeEffect);
 
         if (health <= 0.0f) {
             mobState = STATE_DEAD;
@@ -96,6 +102,27 @@ public abstract class Mob {
         }
     }
 
+    public void applyEffect(ProjectileEffect effect) {
+        // if the effect is not stackable, first check to see if it already exists
+        if (!effect.isStackable()) {
+            int idx = -1;
+
+            for (int i = 0; i < projEffects.size(); i++) {
+                if (projEffects.get(i).getType() == effect.getType()) {
+                    idx = i;
+                    break;
+                }
+            }
+            // remove the old effect if it exists
+            if (idx != -1) {
+                projEffects.remove(idx);
+            }
+        }
+
+        projEffects.add(effect);
+        effect.init();
+    }
+
     public float getX() {
         return x;
     }
@@ -106,6 +133,10 @@ public abstract class Mob {
 
     public float getSpeed() {
         return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 
     public float getHealth() {

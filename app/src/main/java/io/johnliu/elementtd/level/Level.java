@@ -15,13 +15,21 @@ import io.johnliu.elementtd.level.mob.wave.WaveManager;
 import io.johnliu.elementtd.level.projectile.Projectile;
 import io.johnliu.elementtd.level.tile.Tile;
 import io.johnliu.elementtd.level.tower.AirTower;
+import io.johnliu.elementtd.level.tower.EarthTower;
+import io.johnliu.elementtd.level.tower.FireTower;
 import io.johnliu.elementtd.level.tower.Tower;
+import io.johnliu.elementtd.level.tower.WaterTower;
 import io.johnliu.elementtd.math.Vec2i;
 import io.johnliu.elementtd.renderengine.RenderEngine;
 
 public class Level {
 
+    // how long an update tick is in seconds
+    // objects should use this tickTime instead of Game's TICK_TIME
+    // as this TICK_TIME is able to be fast-forwarded
     private static float TICK_TIME;
+    // width of a tile in pixels
+    private static float TILE_WIDTH;
 
     private StateManager stateManager;
     private RenderEngine engine;
@@ -30,10 +38,8 @@ public class Level {
      * Map specification
      */
     // grid dimensions
-    public static int gridWidth;
-    public static int gridHeight;
-    // width of a tile in pixels
-    public static float tileWidth;
+    private int gridWidth;
+    private int gridHeight;
     private Tile[][] tiles;
     // list of all possible start locations for mobs
     private ArrayList<Vec2i> startPoints;
@@ -45,8 +51,7 @@ public class Level {
      */
     private LevelGui gui;
     private TileInterface tileInterface;
-    private String backgroundType;
-    private Bitmap backgroundBitmap;
+    private LevelBackground levelBackground;
     // zoom
     private float zoomScale = 1.0f;
     private float zoomScaleMin = 0.5f;
@@ -60,7 +65,6 @@ public class Level {
      */
     private WaveManager waveManager;
     private boolean paused;
-    private float pausedDelta;
 
     private int numLives;
     // currency
@@ -95,16 +99,15 @@ public class Level {
         this.gridHeight = tiles[0].length;
         // by default the tileWidth will be such that the
         // width of the map matches the width of the screen
-        this.tileWidth = Game.DISPLAY_WIDTH / gridWidth;
+        this.TILE_WIDTH = Game.DISPLAY_WIDTH / gridWidth;
         this.tiles = tiles;
         this.startPoints = startPoints;
         this.endPoint = endPoint;
         this.waveManager = waveManager;
 
-        loadBackground(backgroundType);
-
         gui = new LevelGui(this);
         tileInterface = new TileInterface(this);
+        levelBackground = new LevelBackground();
         zoomScale = 1.0f;
         zoomScaleMin = 0.5f;
         zoomScaleMax = 2.0f;
@@ -124,7 +127,6 @@ public class Level {
         fastForward = false;
 
         paused = false;
-        pausedDelta = 0.0f;
     }
 
     public void update() {
@@ -134,7 +136,7 @@ public class Level {
             }
         }
 
-        ArrayList<Projectile> removeProjectiles = new ArrayList<Projectile>();
+        ArrayList<Projectile> removeProjectiles = new ArrayList();
         for (Projectile projectile : projectiles) {
             // the projectile update function will return
             // whether or not the projectile should be removed
@@ -169,13 +171,15 @@ public class Level {
         this.engine = engine;
         engine.translate(offsetX * zoomScale, offsetY * zoomScale);
         engine.scale(zoomScale, zoomScale, Game.DISPLAY_WIDTH / 2.0f + offsetX, Game.DISPLAY_HEIGHT / 2.0f + offsetY);
-        engine.scale(tileWidth, tileWidth, 0.0f, 0.0f);
+        engine.scale(TILE_WIDTH, TILE_WIDTH, 0.0f, 0.0f);
 
         for (int x = 0; x < gridWidth; x++) {
             for (int y = 0; y < gridHeight; y++) {
                 tiles[x][y].render(engine);
             }
         }
+
+        levelBackground.render(engine);
 
         for (Mob mob : mobs) {
             mob.render(engine);
@@ -208,8 +212,8 @@ public class Level {
 
         // otherwise check for game interaction
         // find location on level pressed relative to level coordinates
-        float tileX = (-offsetX + e.getX()) / tileWidth;
-        float tileY = (-offsetY + e.getY()) / tileWidth;
+        float tileX = (-offsetX + e.getX()) / TILE_WIDTH;
+        float tileY = (-offsetY + e.getY()) / TILE_WIDTH;
 
         // defocus the tile if the user presses
         // anywhere outside of the tile interface buttons
@@ -268,12 +272,12 @@ public class Level {
             offsetY = (Game.DISPLAY_HEIGHT / 2) * (zoomScale - 1.0f);
         }
 
-        if (offsetX < -((tileWidth * gridWidth - Game.DISPLAY_WIDTH) * zoomScale + (Game.DISPLAY_WIDTH / 2) * (zoomScale - 1.0f))) {
-            offsetX = -((tileWidth * gridWidth - Game.DISPLAY_WIDTH) * zoomScale + (Game.DISPLAY_WIDTH / 2) * (zoomScale - 1.0f));
+        if (offsetX < -((TILE_WIDTH * gridWidth - Game.DISPLAY_WIDTH) * zoomScale + (Game.DISPLAY_WIDTH / 2) * (zoomScale - 1.0f))) {
+            offsetX = -((TILE_WIDTH * gridWidth - Game.DISPLAY_WIDTH) * zoomScale + (Game.DISPLAY_WIDTH / 2) * (zoomScale - 1.0f));
         }
 
-        if (offsetY < -((tileWidth * gridHeight - Game.DISPLAY_HEIGHT) * zoomScale + (Game.DISPLAY_HEIGHT / 2) * (zoomScale - 1.0f))) {
-            offsetY = -((tileWidth * gridHeight - Game.DISPLAY_HEIGHT) * zoomScale + (Game.DISPLAY_HEIGHT / 2) * (zoomScale - 1.0f));
+        if (offsetY < -((TILE_WIDTH * gridHeight - Game.DISPLAY_HEIGHT) * zoomScale + (Game.DISPLAY_HEIGHT / 2) * (zoomScale - 1.0f))) {
+            offsetY = -((TILE_WIDTH * gridHeight - Game.DISPLAY_HEIGHT) * zoomScale + (Game.DISPLAY_HEIGHT / 2) * (zoomScale - 1.0f));
         }
     }
 
@@ -290,6 +294,15 @@ public class Level {
         switch(towerType) {
             case LevelResources.AIR_TOWER_ID:
                 tower = new AirTower(x, y);
+                break;
+            case LevelResources.WATER_TOWER_ID:
+                tower = new WaterTower(x, y);
+                break;
+            case LevelResources.EARTH_TOWER_ID:
+                tower = new EarthTower(x, y);
+                break;
+            case LevelResources.FIRE_TOWER_ID:
+                tower = new FireTower(x, y);
                 break;
         }
 
@@ -350,14 +363,10 @@ public class Level {
         fastForward = !fastForward;
         if (fastForward) {
             Level.TICK_TIME = Game.TICK_TIME * 2.0f;
+            engine.setDeltaTimeRenderSpeed(2.0f);
         } else {
             Level.TICK_TIME = Game.TICK_TIME;
-        }
-    }
-
-    public void loadBackground(String backgroundType) {
-        if (backgroundType.equals("GRASSY_PLAINS")) {
-            this.backgroundType = backgroundType;
+            engine.setDeltaTimeRenderSpeed(1.0f);
         }
     }
 
@@ -411,7 +420,11 @@ public class Level {
     }
 
     public static float getTickTime() {
-        return Level.TICK_TIME;
+        return TICK_TIME;
+    }
+
+    public static float getTileWidth() {
+        return TILE_WIDTH;
     }
 
 }

@@ -1,17 +1,15 @@
 package io.johnliu.elementtd.level.mob;
 
 import io.johnliu.elementtd.renderengine.RenderEngine;
-import io.johnliu.elementtd.renderengine.entity.BasicMobEntity;
+import io.johnliu.elementtd.renderengine.entity.mob.GoblinMobEntity;
 
-public class BasicMob extends Mob {
+public class GoblinMob extends Mob {
 
-    public static final int MOB_ID = 1;
+    private GoblinMobEntity mobEntity;
 
-    private BasicMobEntity mobEntity;
-
-    public BasicMob(float x, float y) {
-        super(x, y, 0.75f, 50.0f, 0.0f, 0.2f, 5, 1);
-        mobEntity = new BasicMobEntity(x, y, 50.0f,0.2f);
+    public GoblinMob(float x, float y) {
+        super(x, y, 1.0f, 30.0f, 1.0f, 0.2f, 7, 1);
+        mobEntity = new GoblinMobEntity(x, y, 20.0f, 0.2f);
     }
 
     @Override

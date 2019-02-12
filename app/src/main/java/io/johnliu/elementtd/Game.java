@@ -53,12 +53,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         ASSETS = context.getAssets();
         ResourceLoader.getInstance().setResources(getResources());
 
+        stateManager = new StateManager(this);
+        renderEngine = new RenderEngine();
+
         getHolder().addCallback(this);
         thread = new GameThread(getHolder(), this);
         setFocusable(true);
-
-        stateManager = new StateManager(this);
-        renderEngine = new RenderEngine();
     }
 
     public void update() {
@@ -132,10 +132,9 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
         @Override
         public void run() {
             long beforeTime = System.nanoTime();
-            long deltaTime = 0;
+            long deltaTime;
             long elapsedUpdateTime = 0;
             long elapsedRenderTime = 0;
-            long timeSinceLastUpdate = 0;
 
             final long updateTime = 1000000000 / Game.UPDATE_FPS;
             final long maxRenderTime = 1000000000 / Game.RENDER_FPS_MAX;
@@ -144,15 +143,16 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
             int renderFps = 0;
 
             long elapsedTime = 0;
+            long currentTime;
 
             while (isRunning) {
                 canvas = null;
-                long currentTime = System.nanoTime();
+                currentTime = System.nanoTime();
                 deltaTime = currentTime - beforeTime;
+                beforeTime = currentTime;
+
                 elapsedRenderTime += deltaTime;
                 elapsedUpdateTime += deltaTime;
-                timeSinceLastUpdate += deltaTime;
-                beforeTime = currentTime;
 
                 try {
                     canvas = this.surfaceHolder.lockCanvas();
@@ -161,13 +161,12 @@ public class Game extends SurfaceView implements SurfaceHolder.Callback {
                         while (elapsedUpdateTime >= updateTime) {
                             game.update();
                             elapsedUpdateTime -= updateTime;
-                            timeSinceLastUpdate = 0;
                             updateFps++;
                         }
 
                         game.draw(canvas);
                         if (canvas != null) {
-                            game.render(canvas, ((float) timeSinceLastUpdate) / 1000000000.0f);
+                            game.render(canvas, ((float) elapsedUpdateTime) / 1000000000.0f);
                         }
                         renderFps++;
 

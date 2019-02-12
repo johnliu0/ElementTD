@@ -1,5 +1,6 @@
 package io.johnliu.elementtd.level;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -7,6 +8,7 @@ import android.graphics.Paint;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import io.johnliu.elementtd.Game;
 import io.johnliu.elementtd.R;
 import io.johnliu.elementtd.ResourceLoader;
 import io.johnliu.elementtd.gui.CircleButton;
@@ -21,15 +23,38 @@ public class TileInterface {
     private Stack<Layout> layoutStack;
     private Tile selectedTile;
     private Action selectedAction;
+    // distance from selected tile to buttons
     private float buttonSpreadRadius;
+    // keep the button size consistent
+    private float buttonRadius;
+
+    private Bitmap airTowerButtonBitmap;
+    private Bitmap waterTowerButtonBitmap;
+    private Bitmap earthTowerButtonBitmap;
+    private Bitmap fireTowerButtonBitmap;
+    private Bitmap cancelButtonBitmap;
+    private Bitmap confirmButtonBitmap;
+    private Bitmap upgradeButtonBitmap;
+    private Bitmap sellButtonBitmap;
 
     public TileInterface(Level level) {
         this.level = level;
         layoutStack = new Stack();
         selectedTile = null;
         selectedAction = null;
+        
+        buttonRadius = (Game.DISPLAY_WIDTH / Level.getTileWidth()) * 0.0225f;
+        buttonSpreadRadius = 16.0f * buttonRadius / (float) Math.PI;
 
-        buttonSpreadRadius = 1.0f;
+        airTowerButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_air_tower);
+        waterTowerButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_water_tower);
+        earthTowerButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_earth_tower);
+        fireTowerButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_fire_tower);
+        cancelButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_cancel);
+        confirmButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_confirm);
+        upgradeButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_upgrade);
+        sellButtonBitmap = ResourceLoader.decodeResource(R.drawable.button_sell);
+
     }
 
     public void render(RenderEngine engine) {
@@ -134,14 +159,35 @@ public class TileInterface {
             this.tileInterface = tileInterface;
 
             Vec2f cancelButtonPos = getCircleRadialPosition(120.0f);
-            cancelButton = new CancelButton(tileInterface, cancelButtonPos.x, cancelButtonPos.y, 0.15f);
+            cancelButton = new CancelButton(tileInterface, cancelButtonPos.x, cancelButtonPos.y, buttonRadius);
             addWidget(cancelButton);
 
             buildButtons = new ArrayList();
-            Vec2f basicTowerPos = getCircleRadialPosition(-90.0f);
-            buildButtons.add(new BuildButton(level, tileInterface, basicTowerPos.x, basicTowerPos.y,
-                    0.15f, tileX, tileY, LevelResources.AIR_TOWER_ID));
-            addWidget(buildButtons.get(0));
+
+            Vec2f airTowerPos = getCircleRadialPosition(-180.0f);
+            Vec2f waterTowerPos = getCircleRadialPosition(-120.0f);
+            Vec2f earthTowerPos = getCircleRadialPosition(-60.0f);
+            Vec2f fireTowerPos = getCircleRadialPosition(0.0f);
+
+            buildButtons.add(
+                    new BuildButton(level, tileInterface, airTowerPos.x, airTowerPos.y,
+                    buttonRadius, tileX, tileY, LevelResources.AIR_TOWER_ID, airTowerButtonBitmap));
+
+            buildButtons.add(
+                    new BuildButton(level, tileInterface, waterTowerPos.x, waterTowerPos.y,
+                    buttonRadius, tileX, tileY, LevelResources.WATER_TOWER_ID, waterTowerButtonBitmap));
+
+            buildButtons.add(
+                    new BuildButton(level, tileInterface, earthTowerPos.x, earthTowerPos.y,
+                    buttonRadius, tileX, tileY, LevelResources.EARTH_TOWER_ID, earthTowerButtonBitmap));
+
+            buildButtons.add(
+                    new BuildButton(level, tileInterface, fireTowerPos.x, fireTowerPos.y,
+                    buttonRadius, tileX, tileY, LevelResources.FIRE_TOWER_ID, fireTowerButtonBitmap));
+
+            for (BuildButton button : buildButtons) {
+                addWidget(button);
+            }
         }
 
     }
@@ -158,11 +204,11 @@ public class TileInterface {
             this.tileInterface = tileInterface;
 
             Vec2f sellButtonPos = getCircleRadialPosition(60.0f);
-            sellButton = new SellButton(level, tileInterface, sellButtonPos.x, sellButtonPos.y, 0.15f, tileX, tileY);
+            sellButton = new SellButton(level, tileInterface, sellButtonPos.x, sellButtonPos.y, buttonRadius, tileX, tileY);
             addWidget(sellButton);
 
             Vec2f cancelButtonPos = getCircleRadialPosition(120.0f);
-            cancelButton = new CancelButton(tileInterface, cancelButtonPos.x, cancelButtonPos.y, 0.15f);
+            cancelButton = new CancelButton(tileInterface, cancelButtonPos.x, cancelButtonPos.y, buttonRadius);
             addWidget(cancelButton);
 
             upgradeButtons = new ArrayList();
@@ -181,11 +227,11 @@ public class TileInterface {
             this.tileInterface = tileInterface;
 
             Vec2f confirmButtonPos = getCircleRadialPosition(60.0f);
-            confirmButton = new ConfirmButton(tileInterface, confirmButtonPos.x, confirmButtonPos.y, 0.15f);
+            confirmButton = new ConfirmButton(tileInterface, confirmButtonPos.x, confirmButtonPos.y, buttonRadius);
             addWidget(confirmButton);
 
             Vec2f cancelButtonPos = getCircleRadialPosition(120.0f);
-            cancelButton = new CancelButton(tileInterface, cancelButtonPos.x, cancelButtonPos.y, 0.15f);
+            cancelButton = new CancelButton(tileInterface, cancelButtonPos.x, cancelButtonPos.y, buttonRadius);
             addWidget(cancelButton);
         }
 
@@ -199,7 +245,7 @@ public class TileInterface {
             super(x, y, radius);
             this.tileInterface = tileInterface;
             paint = new Paint();
-            icon = ResourceLoader.decodeResource(R.drawable.confirm_icon);
+            icon = confirmButtonBitmap;
         }
 
         @Override
@@ -224,7 +270,7 @@ public class TileInterface {
             super(x, y, radius);
             this.tileInterface = tileInterface;
             paint = new Paint();
-            icon = ResourceLoader.decodeResource(R.drawable.cancel_icon);
+            icon = cancelButtonBitmap;
         }
 
         @Override
@@ -242,7 +288,6 @@ public class TileInterface {
     }
 
     class BuildButton extends CircleButton {
-
         private Level level;
         private TileInterface tileInterface;
         private int targetX;
@@ -250,20 +295,19 @@ public class TileInterface {
         private int towerId;
 
         public BuildButton(Level level, TileInterface tileInterface, float x, float y,
-                           float radius, int targetX, int targetY, int towerId) {
+                           float radius, int targetX, int targetY, int towerId, Bitmap bitmap) {
             super(x, y, radius);
             this.level = level;
             this.tileInterface = tileInterface;
             this.targetX = targetX;
             this.targetY = targetY;
             this.towerId = towerId;
-            paint = new Paint();
+            this.icon = bitmap;
         }
 
         @Override
         public void render(RenderEngine engine) {
-            paint.setColor(Color.rgb(128, 128, 128));
-            engine.getCanvas().drawCircle(posX, posY, radius, paint);
+            renderIcon(engine.getCanvas());
         }
 
         @Override
@@ -291,14 +335,11 @@ public class TileInterface {
             this.level = level;
             this.targetX = targetX;
             this.targetY = targetY;
-            paint = new Paint();
-            icon = ResourceLoader.decodeResource(R.drawable.upgrade_icon);
+            icon = upgradeButtonBitmap;
         }
 
         @Override
         public void render(RenderEngine engine) {
-            paint.setColor(Color.rgb(128, 128, 128));
-            engine.getCanvas().drawCircle(posX, posY, radius, paint);
             renderIcon(engine.getCanvas());
         }
 
@@ -326,14 +367,11 @@ public class TileInterface {
             this.tileInterface = tileInterface;
             this.targetX = targetX;
             this.targetY = targetY;
-            paint = new Paint();
-            icon = ResourceLoader.decodeResource(R.drawable.sell_icon);
+            icon = sellButtonBitmap;
         }
 
         @Override
         public void render(RenderEngine engine) {
-            paint.setColor(Color.rgb(128, 128, 128));
-            engine.getCanvas().drawCircle(posX, posY, radius, paint);
             renderIcon(engine.getCanvas());
         }
 
